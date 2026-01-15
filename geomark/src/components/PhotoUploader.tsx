@@ -43,7 +43,7 @@ export default function PhotoUploader() {
       const exif = await extractExif(file)
       const dimensions = await getImageDimensions(file)
 
-      let geocoding = { address: null, city: null, country: null }
+      let geocoding: { address: string | null; city: string | null; country: string | null } = { address: null, city: null, country: null }
       if (exif.latitude && exif.longitude) {
         geocoding = await reverseGeocode(exif.latitude, exif.longitude)
       }
@@ -143,6 +143,25 @@ export default function PhotoUploader() {
         const { error: dbError } = await supabase.from('photos').insert(photoData)
 
         if (dbError) throw dbError
+
+        // Send Telegram notification (non-blocking)
+        if (photo.latitude && photo.longitude) {
+          fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              photo_id: shortId,
+              short_id: shortId,
+              filename: photo.file.name,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+              city: photo.city,
+              country: photo.country,
+              address: photo.address,
+              image_url: `${window.location.origin}/p/${shortId}`,
+            }),
+          }).catch(console.error) // Fire and forget
+        }
 
         setPhotos((prev) => {
           const newPhotos = [...prev]

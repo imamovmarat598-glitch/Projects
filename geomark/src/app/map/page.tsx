@@ -33,7 +33,7 @@ export default function MapPage() {
       if (error) {
         console.error('Error fetching photos:', error)
       } else {
-        setPhotos(data || [])
+        setPhotos((data as Photo[]) || [])
       }
       setLoading(false)
     }

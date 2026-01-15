@@ -4,12 +4,13 @@ import { MapPin, Clock, Camera, Download, Share2, Eye } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { formatDate, formatCoordinates, formatFileSize } from '@/lib/utils'
 import PublicPhotoMap from './PublicPhotoMap'
+import type { Photo } from '@/types/database'
 
 interface Props {
   params: Promise<{ id: string }>
 }
 
-async function getPhoto(shortId: string) {
+async function getPhoto(shortId: string): Promise<Photo | null> {
   const { data, error } = await supabase
     .from('photos')
     .select('*')
@@ -21,18 +22,20 @@ async function getPhoto(shortId: string) {
     return null
   }
 
+  const photo = data as Photo
+
   // Check if expired
-  if (data.expires_at && new Date(data.expires_at) < new Date()) {
+  if (photo.expires_at && new Date(photo.expires_at) < new Date()) {
     return null
   }
 
   // Increment view count
   await supabase
     .from('photos')
-    .update({ view_count: data.view_count + 1 })
-    .eq('id', data.id)
+    .update({ view_count: photo.view_count + 1 })
+    .eq('id', photo.id)
 
-  return data
+  return photo
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

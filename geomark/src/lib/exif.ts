@@ -17,7 +17,6 @@ export async function extractExif(file: File): Promise<ExifData> {
       gps: true,
       exif: true,
       tiff: true,
-      ifd0: true,
     })
 
     if (!exif) {

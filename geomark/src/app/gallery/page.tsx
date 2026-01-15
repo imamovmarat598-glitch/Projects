@@ -22,7 +22,7 @@ async function getPhotos(): Promise<Photo[]> {
     return []
   }
 
-  return data || []
+  return (data as Photo[]) || []
 }
 
 export default async function GalleryPage() {
