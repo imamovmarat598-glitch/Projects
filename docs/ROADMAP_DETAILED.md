@@ -56,7 +56,7 @@ Total: 12 weeks до launch
 - [ ] Git repo инициализация (Turborepo mono-repo)
 - [ ] PostgreSQL + PostGIS database setup
 - [ ] Database schema design
-- [ ] S3/Cloudflare R2 bucket setup
+- [ ] Cloudflare R2 bucket setup
 - [ ] Development environment (Docker Compose)
 
 **📱 Frontend Dev:**
@@ -88,7 +88,7 @@ Total: 12 weeks до launch
   - Photos table
   - PhotoMetadata table
   - Indexes (device_id, ip, location, created_at)
-- [ ] S3/R2 integration
+- [ ] Cloudflare R2 integration
   - File upload service
   - Signed URL generation
   - Thumbnail storage
@@ -148,7 +148,7 @@ Total: 12 weeks до launch
 - [ ] Auto-deletion cron job
   - Scheduler setup (@nestjs/schedule)
   - Check every 10 minutes
-  - S3 file deletion
+  - Cloudflare R2file deletion
   - Metadata retention logic
   - Anonymization after 90 days
 
@@ -687,7 +687,7 @@ Total: 12 weeks до launch
 |---------|------|-------|
 | Backend Hosting | $20-40 | Railway/Render |
 | Database | $15-25 | Supabase/Neon |
-| Storage (S3/R2) | $5-15 | 100GB + bandwidth |
+| Storage (R2) | $5-15 | 100GB + bandwidth |
 | Redis Cache | $5-10 | Upstash |
 | Geocoding API | $0-10 | Nominatim free + Google fallback |
 | Monitoring | $0-10 | Sentry free tier |

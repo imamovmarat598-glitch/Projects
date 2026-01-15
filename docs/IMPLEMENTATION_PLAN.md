@@ -80,7 +80,7 @@ Next.js 15 (App Router + Server Components)
 ```
 NestJS 11 (Node.js 20 LTS)
 ├── Database: PostgreSQL 16 + PostGIS 3.4
-├── Storage: AWS S3 / Cloudflare R2
+├── Storage: Cloudflare R2
 ├── Cache: Redis 7.x
 ├── Queue: Bull MQ (для Telegram отправки)
 ├── Geocoding: Nominatim (OpenStreetMap) + Google Maps API fallback
@@ -789,14 +789,14 @@ class AutoDeletionService {
     });
 
     for (const photo of expired) {
-      // Delete from S3
-      await this.s3.deleteObject({
-        Bucket: process.env.S3_BUCKET,
+      // Delete from Cloudflare R2
+      await this.r2.deleteObject({
+        Bucket: process.env.R2_BUCKET,
         Key: photo.photo_url,
       });
 
-      await this.s3.deleteObject({
-        Bucket: process.env.S3_BUCKET,
+      await this.r2.deleteObject({
+        Bucket: process.env.R2_BUCKET,
         Key: photo.thumbnail_url,
       });
 
@@ -876,7 +876,7 @@ class AutoDeletionService {
 #### Week 2: Backend Foundation
 - [ ] NestJS project setup
 - [ ] PostgreSQL + PostGIS database
-- [ ] S3/Cloudflare R2 integration
+- [ ] Cloudflare R2 integration
 - [ ] Photo upload endpoint (multipart)
 - [ ] Device fingerprinting logic
 - [ ] Rate limiting middleware
@@ -1054,7 +1054,7 @@ class AutoDeletionService {
 |--------|-----------|----------|
 | **Backend Hosting** | $20-40 | Railway/Render (1-2 instances) |
 | **Database** | $15-25 | PostgreSQL managed (Supabase/Neon) |
-| **Storage (S3/R2)** | $5-15 | 100GB + bandwidth |
+| **Storage (R2)** | $5-15 | 100GB + bandwidth |
 | **Geocoding API** | $0-10 | Nominatim (free) + Google fallback |
 | **Monitoring** | $0-10 | Sentry free tier |
 | **Domain** | $1 | geomark.app |

@@ -220,7 +220,7 @@ GPS Camera App — простое мобильное приложение для
 **Требования:**
 - REST API на NestJS
 - PostgreSQL + PostGIS для хранения метаданных
-- AWS S3 / Google Cloud Storage для хранения фото
+- Cloudflare R2 / Cloudflare R2 для хранения фото
 - Endpoint для загрузки фото (POST /api/photos/upload)
 - Endpoint для генерации публичных ссылок (POST /api/links/create)
 - Endpoint для получения фото по ссылке (GET /link/:shortId)
@@ -277,7 +277,7 @@ GPS Camera App — простое мобильное приложение для
 
 **Требования:**
 - Проверка каждые 10 минут
-- Удаление фото из S3/GCS
+- Удаление фото из Cloudflare R2
 - **ВАЖНО:** Метаданные НЕ удаляются — остаются в БД для анализа паттернов
 - Обновление статуса: `deleted_at` timestamp, `photo_url` = null
 - Метаданные анонимизируются через 90 дней (hash IP, удаление device_id)
@@ -351,17 +351,38 @@ GPS Camera App — простое мобильное приложение для
 - Кэш работает (не превышаем API лимиты)
 - Fallback не ломает функциональность
 
-#### 2.2.7 Device Fingerprinting (улучшенная стратегия)
+#### 2.2.7 Device Identification (Apple Guidelines Compliant)
 **Приоритет:** Критический
-**Описание:** Надежная идентификация устройств для rate limiting и pattern analysis.
+**Описание:** Идентификация устройств для rate limiting и pattern analysis с соблюдением Apple App Store Guidelines.
 
-**Стратегия (комбинированная):**
-- **iOS:** IDFV (Identifier for Vendor) + device model + OS version hash
-- **Android:** Installation ID + Android ID + device model hash
-- **Дополнительно:** Screen resolution, timezone, language
-- **Fallback:** UUID генерируется при первом запуске, хранится в SecureStorage
-- Fingerprint меняется при переустановке (ОК, не критично)
-- Хранение в secure storage (Keychain/EncryptedSharedPreferences)
+**⚠️ ВАЖНО:** Apple App Store Review Guideline 2.5.13 ЗАПРЕЩАЕТ device fingerprinting для user identification или tracking.
+
+**Разрешенная стратегия:**
+
+**iOS (Apple-compliant):**
+- **IDFV** (`identifierForVendor`) — единственный разрешенный идентификатор
+- IDFV уникален для app developer и сохраняется между обновлениями
+- Сбрасывается только при удалении ВСЕХ приложений от данного разработчика
+- Комбинация: `IDFV + device model + OS version`
+- Хранение в iOS Keychain для persistence
+- **ЗАПРЕЩЕНО:** Canvas fingerprinting, WebGL, screen resolution, hardware fingerprinting
+
+**Android (более гибко):**
+- **Android ID** (`Settings.Secure.ANDROID_ID`) — уникален для установки
+- Сбрасывается при factory reset или переустановке (это приемлемо)
+- Комбинация: `Android ID + device model + OS version`
+- Хранение в EncryptedSharedPreferences
+
+**Web (минимальный fingerprint):**
+- UUID в localStorage (сбрасывается при очистке данных)
+- Только базовые параметры: User-Agent, language, timezone
+- **ЗАПРЕЩЕНО:** Canvas, WebGL, font enumeration
+
+**Fallback:**
+- Если идентификатор недоступен → генерируется новый UUID
+- Хранится в secure storage для persistence
+
+**Код-пример см. в:** [SETUP_CHECKLIST.md секция 6](./SETUP_CHECKLIST.md#6--device-fingerprinting-apple-guidelines-compliant)
 
 **Важно:**
 - НЕ использовать IDFA (требует permission)
@@ -380,7 +401,7 @@ GPS Camera App — простое мобильное приложение для
 **Требования:**
 - **Exponential backoff** для retry (1s, 2s, 4s, 8s, 16s)
 - Максимум 5 retries
-- Resume upload (если поддерживается S3 Multipart Upload)
+- Resume upload (если поддерживается Cloudflare R2Multipart Upload)
 - Уведомление пользователю о failed upload
 - Очистка failed partial uploads (background task)
 - Offline queue с persist (сохраняется при закрытии приложения)
@@ -646,7 +667,7 @@ GPS Camera App — простое мобильное приложение для
 - Хранилище устройства (требуется разрешение)
 - Камера устройства (обязательно)
 - Интернет (опционально, только для загрузки на сервер)
-- AWS S3 / Google Cloud Storage
+- Cloudflare R2 / Cloudflare R2
 - Geocoding API (Google Geocoding / Nominatim для адресов)
 - Telegram Bot API (для личной модерации владельцем)
 
@@ -681,7 +702,7 @@ GPS Camera App — простое мобильное приложение для
 **Week 1-2: Backend + Infrastructure**
 - NestJS API
 - PostgreSQL + PostGIS (с индексами для performance)
-- S3/GCS integration
+- Cloudflare R2 integration
 - Telegram moderation bot (личный, single owner)
 - Location pattern detection logic
 - Geocoding service integration
@@ -779,7 +800,7 @@ GPS Camera App — простое мобильное приложение для
 
 ### 11.3 Как храним и удаляем
 - Метаданные хранятся в PostgreSQL
-- Фотографии хранятся в AWS S3 / Google Cloud Storage
+- Фотографии хранятся в Cloudflare R2 / Cloudflare R2
 - Автоматическое удаление фото после истечения срока жизни
 - Метаданные сохраняются для compliance (анонимизированные логи)
 - Никакие данные не передаются третьим лицам без согласия

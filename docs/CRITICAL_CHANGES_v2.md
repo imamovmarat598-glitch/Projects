@@ -115,7 +115,7 @@
 **Решение:**
 - Exponential backoff: 1s, 2s, 4s, 8s, 16s
 - Максимум 5 retries
-- Resume upload (S3 Multipart)
+- Resume upload (Cloudflare R2Multipart)
 - Уведомление пользователю о failed upload
 - Очистка partial uploads (background task)
 - Persist offline queue
@@ -154,7 +154,7 @@
 - **Mobile:** Sentry / Crashlytics
 - **Backend:** CloudWatch / Datadog
 - **Alerts:**
-  - S3 upload fails > 10% (critical)
+  - Cloudflare R2upload fails > 10% (critical)
   - Telegram bot не отправляет (модерация слепая)
   - Auto-deletion cron не запустился (накопление данных)
   - Geocoding API down (fallback активирован)
@@ -350,7 +350,7 @@
 
 ### Важные:
 5. ⚠️ **Load testing** — определить реальные limits (RPS, uploads/sec)
-6. ⚠️ **Cost estimation** — S3, Geocoding API, bandwidth
+6. ⚠️ **Cost estimation** — Cloudflare R2, Geocoding API, bandwidth
 7. ⚠️ **Legal review** — особенно про metadata retention и law enforcement cooperation
 
 ### Nice to have:

@@ -43,7 +43,7 @@ User uploads photo
        ↓
 Backend API receives photo
        ↓
-Save full photo to S3/GCS
+Save full photo to Cloudflare R2
 Generate thumbnail (640x480, ~100KB)
 Save metadata to PostgreSQL
        ↓
@@ -227,7 +227,7 @@ function determineRegion(lat: number, lon: number): string {
 
 🔗 Links:
   Public: https://gps.cm/abc123
-  S3: [Internal link]
+  R2: [Internal link]
   Deletion: 2026-01-16 10:30:00 UTC (24h)
 
 🛡️ Security:
@@ -417,7 +417,7 @@ async function checkNSFW(photoUrl: string): Promise<NSFWResult> {
   try {
     // 1. AWS Rekognition
     const awsResult = await rekognition.detectModerationLabels({
-      Image: { S3Object: { Bucket: 'gps-camera', Key: photoUrl } }
+      Image: { R2Object: { Bucket: 'gps-camera', Key: photoUrl } }
     }).promise();
 
     const isNSFW = awsResult.ModerationLabels?.some(
@@ -454,7 +454,7 @@ async function checkNSFW(photoUrl: string): Promise<NSFWResult> {
 ### 5.3 Действия при детекции
 
 **Если NSFW detected (confidence >= 80%):**
-1. ✅ Блокировать загрузку (не сохранять на S3)
+1. ✅ Блокировать загрузку (не сохранять в Cloudflare R2)
 2. ✅ Отправить alert в `#suspicious` канал
 3. ✅ Добавить device ID в watchlist
 4. ✅ Логировать IP адрес
@@ -588,7 +588,7 @@ async function detectSuspiciousPattern(deviceId: string): Promise<boolean> {
 - Флаги и заметки (постоянно)
 - Статистика (анонимизированная, постоянно)
 
-**В S3/GCS:**
+**В Cloudflare R2:**
 - Фотографии удаляются согласно scheduled_deletion
 - Flagged фото могут храниться дольше (для расследований)
 

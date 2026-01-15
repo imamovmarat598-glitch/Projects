@@ -174,7 +174,7 @@ GPS Camera App сочетает максимальную простоту исп
 ### 4.1 Инфраструктура хранения
 
 **Фотографии:**
-- AWS S3 / Google Cloud Storage
+- Cloudflare R2 / Cloudflare R2
 - Регион: EU (для GDPR compliance) или RU
 - Шифрование at rest: AES-256
 - Доступ: только через signed URLs с ограниченным сроком действия
@@ -204,7 +204,7 @@ GPS Camera App сочетает максимальную простоту исп
 - Обязательная аутентификация
 - Encryption in transit
 
-**S3/GCS Storage:**
+**Cloudflare R2 Storage:**
 - Приватные bucket (не публичные)
 - IAM roles с минимальными правами
 - Signed URLs с коротким TTL (15 минут)
@@ -239,7 +239,7 @@ GPS Camera App сочетает максимальную простоту исп
 2. При загрузке на сервер устанавливается `scheduled_deletion` timestamp
 3. Cron job каждые 10 минут проверяет истекшие фото
 4. Удаление фото происходит автоматически:
-   - ✅ Файл удаляется из S3/GCS
+   - ✅ Файл удаляется из Cloudflare R2
    - ✅ `photo_url` в БД = null
    - ✅ `deleted_at` timestamp устанавливается
    - ❌ **Метаданные НЕ удаляются** — остаются для pattern analysis
