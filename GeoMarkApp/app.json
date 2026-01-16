@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "GeoMark",
+    "slug": "geomark",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4F46E5"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.geomark.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "GeoMark needs camera access to take photos with GPS coordinates",
+        "NSLocationWhenInUseUsageDescription": "GeoMark needs location access to attach GPS coordinates to your photos",
+        "NSLocationAlwaysUsageDescription": "GeoMark needs location access to attach GPS coordinates to your photos",
+        "NSPhotoLibraryUsageDescription": "GeoMark needs photo library access to save your photos",
+        "NSPhotoLibraryAddUsageDescription": "GeoMark needs permission to save photos to your library"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4F46E5"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.geomark.app",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "GeoMark needs camera access to take photos with GPS coordinates"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "GeoMark needs location access to attach GPS coordinates to your photos"
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "GeoMark needs photo library access to save your photos",
+          "savePhotosPermission": "GeoMark needs permission to save photos to your library"
+        }
+      ]
+    ]
+  }
+}
