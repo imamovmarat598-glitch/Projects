@@ -1,30 +1,24 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
   Image,
-  Dimensions,
+  Linking,
+  RefreshControl,
 } from 'react-native'
-import MapView, { Marker, Callout, PROVIDER_GOOGLE } from 'react-native-maps'
 import { Ionicons } from '@expo/vector-icons'
 import { PhotoStorage } from '../services/PhotoStorage'
 import { useLocation } from '../hooks/useLocation'
 import { colors } from '../theme/colors'
 import type { PhotoMetadata } from '../types/photo'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-const { width, height } = Dimensions.get('window')
-
-interface Props {
-  navigation: NativeStackNavigationProp<any>
-}
-
-export default function MapScreen({ navigation }: Props) {
-  const mapRef = useRef<MapView>(null)
+export default function MapScreen() {
   const [photos, setPhotos] = useState<PhotoMetadata[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const { location } = useLocation()
 
   const loadPhotos = useCallback(async () => {
@@ -36,6 +30,7 @@ export default function MapScreen({ navigation }: Props) {
       console.error('Failed to load photos:', error)
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }, [])
 
@@ -43,99 +38,133 @@ export default function MapScreen({ navigation }: Props) {
     loadPhotos()
   }, [loadPhotos])
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadPhotos()
+  const onRefresh = () => {
+    setRefreshing(true)
+    loadPhotos()
+  }
+
+  const openInMaps = (photo: PhotoMetadata) => {
+    const { latitude, longitude } = photo.coordinates
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+    Linking.openURL(url)
+  }
+
+  const openAllInMaps = () => {
+    if (photos.length === 0) return
+
+    // Open first photo location
+    const { latitude, longitude } = photos[0].coordinates
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+    Linking.openURL(url)
+  }
+
+  const formatCoordinates = (lat: number, lon: number): string => {
+    const latDir = lat >= 0 ? 'N' : 'S'
+    const lonDir = lon >= 0 ? 'E' : 'W'
+    return `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lon).toFixed(4)}°${lonDir}`
+  }
+
+  const formatDate = (timestamp: number): string => {
+    return new Date(timestamp).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
     })
-    return unsubscribe
-  }, [navigation, loadPhotos])
-
-  const goToMyLocation = () => {
-    if (location && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      })
-    }
   }
-
-  const fitToMarkers = () => {
-    if (photos.length > 0 && mapRef.current) {
-      const coordinates = photos.map(p => ({
-        latitude: p.coordinates.latitude,
-        longitude: p.coordinates.longitude,
-      }))
-      mapRef.current.fitToCoordinates(coordinates, {
-        edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
-        animated: true,
-      })
-    }
-  }
-
-  const initialRegion = location
-    ? {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }
-    : {
-        latitude: 55.7558,
-        longitude: 37.6173,
-        latitudeDelta: 0.5,
-        longitudeDelta: 0.5,
-      }
 
   return (
     <View style={styles.container}>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={initialRegion}
-        showsUserLocation
-        showsMyLocationButton={false}
-      >
-        {photos.map((photo) => (
-          <Marker
-            key={photo.id}
-            coordinate={{
-              latitude: photo.coordinates.latitude,
-              longitude: photo.coordinates.longitude,
-            }}
-          >
-            <View style={styles.markerContainer}>
-              <Image source={{ uri: photo.uri }} style={styles.markerImage} />
-            </View>
-            <Callout
-              onPress={() => navigation.navigate('PhotoDetail', { photo })}
-            >
-              <View style={styles.callout}>
-                <Image source={{ uri: photo.uri }} style={styles.calloutImage} />
-                <Text style={styles.calloutText}>View Details</Text>
-              </View>
-            </Callout>
-          </Marker>
-        ))}
-      </MapView>
-
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Map</Text>
         <Text style={styles.subtitle}>
-          {photos.length} photos on map
+          {photos.length} photos with GPS
         </Text>
       </View>
 
-      {/* Controls */}
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.controlButton} onPress={goToMyLocation}>
-          <Ionicons name="locate" size={24} color={colors.primary} />
+      {/* Current Location */}
+      {location && (
+        <View style={styles.currentLocation}>
+          <Ionicons name="navigate" size={20} color={colors.primary} />
+          <View style={styles.locationInfo}>
+            <Text style={styles.locationLabel}>Your location</Text>
+            <Text style={styles.locationCoords}>
+              {formatCoordinates(location.latitude, location.longitude)}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.openMapsButton}
+            onPress={() => {
+              const url = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`
+              Linking.openURL(url)
+            }}
+          >
+            <Ionicons name="open-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Open All in Maps */}
+      {photos.length > 0 && (
+        <TouchableOpacity style={styles.openAllButton} onPress={openAllInMaps}>
+          <Ionicons name="map" size={20} color="white" />
+          <Text style={styles.openAllText}>Open in Google Maps</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.controlButton} onPress={fitToMarkers}>
-          <Ionicons name="scan" size={24} color={colors.primary} />
-        </TouchableOpacity>
+      )}
+
+      {/* Photo List */}
+      <ScrollView
+        style={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {loading ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>Loading...</Text>
+          </View>
+        ) : photos.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="location-outline" size={64} color={colors.textLight} />
+            <Text style={styles.emptyTitle}>No geotagged photos</Text>
+            <Text style={styles.emptyText}>
+              Take photos with GPS to see them here
+            </Text>
+          </View>
+        ) : (
+          photos.map((photo) => (
+            <TouchableOpacity
+              key={photo.id}
+              style={styles.photoCard}
+              onPress={() => openInMaps(photo)}
+            >
+              <Image source={{ uri: photo.uri }} style={styles.thumbnail} />
+              <View style={styles.photoInfo}>
+                <Text style={styles.photoCoords}>
+                  {formatCoordinates(
+                    photo.coordinates.latitude,
+                    photo.coordinates.longitude
+                  )}
+                </Text>
+                <Text style={styles.photoDate}>{formatDate(photo.timestamp)}</Text>
+                {photo.note && (
+                  <Text style={styles.photoNote} numberOfLines={1}>
+                    {photo.note}
+                  </Text>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
+            </TouchableOpacity>
+          ))
+        )}
+        <View style={styles.footer} />
+      </ScrollView>
+
+      {/* Info Banner */}
+      <View style={styles.infoBanner}>
+        <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
+        <Text style={styles.infoText}>
+          Tap on photo to open location in Google Maps
+        </Text>
       </View>
     </View>
   )
@@ -146,20 +175,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  map: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: 'rgba(255,255,255,0.95)',
   },
   title: {
     fontSize: 32,
@@ -171,51 +190,118 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 4,
   },
-  controls: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    gap: 12,
-  },
-  controlButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'white',
-    justifyContent: 'center',
+  currentLocation: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    marginHorizontal: 20,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
   },
-  markerContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 3,
-    borderColor: colors.primary,
-    overflow: 'hidden',
-    backgroundColor: 'white',
+  locationInfo: {
+    flex: 1,
+    marginLeft: 12,
   },
-  markerImage: {
-    width: '100%',
-    height: '100%',
-  },
-  callout: {
-    width: 150,
-    alignItems: 'center',
-  },
-  calloutImage: {
-    width: 140,
-    height: 100,
-    borderRadius: 8,
-  },
-  calloutText: {
-    marginTop: 8,
+  locationLabel: {
     fontSize: 14,
-    color: colors.primary,
+    color: colors.textSecondary,
+  },
+  locationCoords: {
+    fontSize: 16,
     fontWeight: '600',
+    color: colors.text,
+    marginTop: 2,
+  },
+  openMapsButton: {
+    padding: 8,
+  },
+  openAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    marginHorizontal: 20,
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  openAllText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  list: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  photoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  thumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: colors.border,
+  },
+  photoInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  photoCoords: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  photoDate: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  photoNote: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  infoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: colors.surface,
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  footer: {
+    height: 100,
   },
 })
