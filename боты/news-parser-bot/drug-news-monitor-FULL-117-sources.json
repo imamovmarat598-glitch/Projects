@@ -1,0 +1,1987 @@
+{
+  "name": "Drug News Monitor - Russia & CIS - FULL 117 Sources",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 1500],
+      "notes": "Runs every 12 hours - adjust as needed"
+    },
+    {
+      "parameters": {
+        "url": "https://xn--b1aew.xn--p1ai/news/rss"
+      },
+      "id": "rss-mvd-rf",
+      "name": "МВД РФ",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://rosgvard.ru/ru/rss"
+      },
+      "id": "rss-rosgvard",
+      "name": "Росгвардия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://genproc.gov.ru/rss/"
+      },
+      "id": "rss-genproc",
+      "name": "Генпрокуратура РФ",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://sledcom.ru/rss_news"
+      },
+      "id": "rss-sledcom",
+      "name": "СК РФ",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://tass.ru/rss/v2.xml"
+      },
+      "id": "rss-tass",
+      "name": "ТАСС Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ria.ru/export/rss2/incidents/index.xml"
+      },
+      "id": "rss-ria",
+      "name": "РИА Новости Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.interfax.ru/rss.asp"
+      },
+      "id": "rss-interfax",
+      "name": "Интерфакс",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://lenta.ru/rss/news/russia"
+      },
+      "id": "rss-lenta",
+      "name": "Lenta.ru Россия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.gazeta.ru/export/rss/incidents.xml"
+      },
+      "id": "rss-gazeta",
+      "name": "Газета.ру Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.mk.ru/rss/index.xml"
+      },
+      "id": "rss-mk",
+      "name": "Московский Комсомолец",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://vm.ru/rss/news.xml"
+      },
+      "id": "rss-vm",
+      "name": "Вечерняя Москва",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.m24.ru/rss.xml"
+      },
+      "id": "rss-m24",
+      "name": "Москва 24",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://moslenta.ru/rss.xml"
+      },
+      "id": "rss-moslenta",
+      "name": "Мослента",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://inpodolsk.ru/feed"
+      },
+      "id": "rss-podmoskovye",
+      "name": "Подмосковье Сегодня",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.fontanka.ru/fontanka.rss"
+      },
+      "id": "rss-fontanka",
+      "name": "Фонтанка.ру",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://spbdnevnik.ru/rss"
+      },
+      "id": "rss-spbdnevnik",
+      "name": "Петербургский дневник",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://m.78.ru/rss/"
+      },
+      "id": "rss-moika78",
+      "name": "Мойка78",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://bel.ru/rss"
+      },
+      "id": "rss-belgorod",
+      "name": "Белгород",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://bryansktoday.ru/rss"
+      },
+      "id": "rss-bryansk",
+      "name": "Брянск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.vladimir.kp.ru/rss/"
+      },
+      "id": "rss-vladimir",
+      "name": "Владимир",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://moe-online.ru/rss"
+      },
+      "id": "rss-voronezh",
+      "name": "Воронеж",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ivgorod.ru/rss"
+      },
+      "id": "rss-ivanovo",
+      "name": "Иваново",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kaluga.bezformata.com/rss/"
+      },
+      "id": "rss-kaluga",
+      "name": "Калуга",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kostroma.today/feed"
+      },
+      "id": "rss-kostroma",
+      "name": "Кострома",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kursk.bezformata.com/rss/"
+      },
+      "id": "rss-kursk",
+      "name": "Курск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://lipetsknews.net/rss/"
+      },
+      "id": "rss-lipetsk",
+      "name": "Липецк",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://orel.bezformata.com/rss/"
+      },
+      "id": "rss-orel",
+      "name": "Орел",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.rzn.info/rss/"
+      },
+      "id": "rss-ryazan",
+      "name": "Рязань",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://smolensk.bezformata.com/rss/"
+      },
+      "id": "rss-smolensk",
+      "name": "Смоленск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://tamlife.ru/feed"
+      },
+      "id": "rss-tambov",
+      "name": "Тамбов",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://tver.bezformata.com/rss/"
+      },
+      "id": "rss-tver",
+      "name": "Тверь",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://myslo.ru/rss"
+      },
+      "id": "rss-tula",
+      "name": "Тула",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://yar.kp.ru/rss/"
+      },
+      "id": "rss-yaroslavl",
+      "name": "Ярославль",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://29.ru/rss/"
+      },
+      "id": "rss-arkhangelsk",
+      "name": "Архангельск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://35.ru/rss/"
+      },
+      "id": "rss-vologda",
+      "name": "Вологда",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.klgd.ru/rss/news/"
+      },
+      "id": "rss-kaliningrad",
+      "name": "Калининград",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://gubdaily.ru/rss/"
+      },
+      "id": "rss-karelia",
+      "name": "Карелия (Петрозаводск)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://komiinform.ru/rss/"
+      },
+      "id": "rss-komi",
+      "name": "Коми (Сыктывкар)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://b-port.com/rss"
+      },
+      "id": "rss-murmansk",
+      "name": "Мурманск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://novgorod.bezformata.com/rss/"
+      },
+      "id": "rss-novgorod",
+      "name": "Новгород",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://informpskov.ru/rss/"
+      },
+      "id": "rss-pskov",
+      "name": "Псков",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://riadagestan.ru/feed"
+      },
+      "id": "rss-dagestan",
+      "name": "Дагестан (Махачкала)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ingushetia.ru/rss/"
+      },
+      "id": "rss-ingushetia",
+      "name": "Ингушетия (Магас)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.5-tv.ru/rss/"
+      },
+      "id": "rss-kbr",
+      "name": "Кабардино-Балкария (Нальчик)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kchr.bezformata.com/rss/"
+      },
+      "id": "rss-kchr",
+      "name": "Карачаево-Черкесия (Черкесск)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://sevosetia.ru/rss/"
+      },
+      "id": "rss-ossetia",
+      "name": "Северная Осетия (Владикавказ)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.grozny-inform.ru/rss/"
+      },
+      "id": "rss-chechnya",
+      "name": "Чечня (Грозный)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://stapravda.ru/feed"
+      },
+      "id": "rss-stavropol",
+      "name": "Ставрополь",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kuban.kp.ru/rss/"
+      },
+      "id": "rss-krasnodar",
+      "name": "Краснодар",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://news.sochi.ru/rss/"
+      },
+      "id": "rss-sochi",
+      "name": "Сочи",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://adygi.ru/rss/"
+      },
+      "id": "rss-adygeya",
+      "name": "Адыгея (Майкоп)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.volgainform.ru/rss/"
+      },
+      "id": "rss-astrakhan",
+      "name": "Астрахань",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://bloknot-volgograd.ru/rss/"
+      },
+      "id": "rss-volgograd",
+      "name": "Волгоград",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.donnews.ru/rss/"
+      },
+      "id": "rss-rostov",
+      "name": "Ростов-на-Дону",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 1100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://crimea.ria.ru/export/rss2/index.xml"
+      },
+      "id": "rss-crimea",
+      "name": "Крым (Симферополь)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://sevastopol.su/rss/"
+      },
+      "id": "rss-sevastopol",
+      "name": "Севастополь",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.nn.ru/rss/"
+      },
+      "id": "rss-nnov",
+      "name": "Нижний Новгород",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kirovreg.ru/rss/"
+      },
+      "id": "rss-kirov",
+      "name": "Киров",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.samru.ru/rss/"
+      },
+      "id": "rss-samara",
+      "name": "Самара",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://sartraccc.ru/rss/"
+      },
+      "id": "rss-saratov",
+      "name": "Саратов",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kzn.ru/export/rss.xml"
+      },
+      "id": "rss-kazan",
+      "name": "Казань (Татарстан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://izhlife.ru/rss/"
+      },
+      "id": "rss-izhevsk",
+      "name": "Ижевск (Удмуртия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://bash.news/rss/"
+      },
+      "id": "rss-ufa",
+      "name": "Уфа (Башкортостан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 1300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://59.ru/rss/"
+      },
+      "id": "rss-perm",
+      "name": "Пермь",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.orenburg.kp.ru/rss/"
+      },
+      "id": "rss-orenburg",
+      "name": "Оренбург",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://penzanews.ru/rss/"
+      },
+      "id": "rss-penza",
+      "name": "Пенза",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ultoday.ru/rss/"
+      },
+      "id": "rss-ulyanovsk",
+      "name": "Ульяновск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.cap.ru/rss/"
+      },
+      "id": "rss-cheboksary",
+      "name": "Чебоксары (Чувашия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://marimedia.ru/rss/"
+      },
+      "id": "rss-yoshkar-ola",
+      "name": "Йошкар-Ола (Марий Эл)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.e-mordovia.ru/rss/"
+      },
+      "id": "rss-saransk",
+      "name": "Саранск (Мордовия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.e1.ru/export/rss/news.xml"
+      },
+      "id": "rss-ekaterinburg",
+      "name": "Екатеринбург",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.chel.kp.ru/rss/"
+      },
+      "id": "rss-chelyabinsk",
+      "name": "Челябинск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 1500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://72.ru/rss/"
+      },
+      "id": "rss-tyumen",
+      "name": "Тюмень",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kurganobl.ru/rss/"
+      },
+      "id": "rss-kurgan",
+      "name": "Курган",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://hmblog.ru/rss/"
+      },
+      "id": "rss-khmao",
+      "name": "Ханты-Мансийск (ХМАО)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://yamal-region.tv/rss/"
+      },
+      "id": "rss-yanao",
+      "name": "Салехард (ЯНАО)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://news.ngs.ru/rss/"
+      },
+      "id": "rss-novosibirsk",
+      "name": "Новосибирск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://omsk.bezformata.com/rss/"
+      },
+      "id": "rss-omsk",
+      "name": "Омск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.tomsk.kp.ru/rss/"
+      },
+      "id": "rss-tomsk",
+      "name": "Томск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kuzbass85.ru/rss/"
+      },
+      "id": "rss-kemerovo",
+      "name": "Кемерово",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://newslab.ru/rss/"
+      },
+      "id": "rss-krasnoyarsk",
+      "name": "Красноярск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 1700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://irk.ru/news/rss/"
+      },
+      "id": "rss-irkutsk",
+      "name": "Иркутск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://alt.kp.ru/rss/"
+      },
+      "id": "rss-barnaul",
+      "name": "Барнаул (Алтайский край)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.gorno-altaisk.info/rss/"
+      },
+      "id": "rss-gorno-altaysk",
+      "name": "Горно-Алтайск (Алтай)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://19rus.info/rss/"
+      },
+      "id": "rss-abakan",
+      "name": "Абакан (Хакасия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.tuvaonline.ru/rss/"
+      },
+      "id": "rss-kyzyl",
+      "name": "Кызыл (Тува)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://primgazeta.ru/feed/"
+      },
+      "id": "rss-vladivostok",
+      "name": "Владивосток (Приморье)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://khabarovsk.bezformata.com/rss/"
+      },
+      "id": "rss-khabarovsk",
+      "name": "Хабаровск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.amurobl.ru/rss/"
+      },
+      "id": "rss-blagoveshchensk",
+      "name": "Благовещенск (Амурская обл.)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.ysia.ru/rss/"
+      },
+      "id": "rss-yakutsk",
+      "name": "Якутск (Саха)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 1900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.magadan.kp.ru/rss/"
+      },
+      "id": "rss-magadan",
+      "name": "Магадан",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://skr.su/rss/"
+      },
+      "id": "rss-sakhalin",
+      "name": "Южно-Сахалинск",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kamchatinfo.com/rss/"
+      },
+      "id": "rss-kamchatka",
+      "name": "Петропавловск-Камчатский",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://chukotka.bezformata.com/rss/"
+      },
+      "id": "rss-chukotka",
+      "name": "Анадырь (Чукотка)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://eao.ru/rss/"
+      },
+      "id": "rss-eao",
+      "name": "Биробиджан (ЕАО)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://tengrinews.kz/rss/"
+      },
+      "id": "rss-tengrinews",
+      "name": "Tengrinews (Казахстан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.zakon.kz/rss/"
+      },
+      "id": "rss-zakon-kz",
+      "name": "Zakon.kz (Казахстан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://mvd.gov.kz/ru/rss"
+      },
+      "id": "rss-mvd-kz",
+      "name": "МВД Казахстана",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.nur.kz/rss"
+      },
+      "id": "rss-nur-kz",
+      "name": "Nur.kz (Казахстан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 2100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.belta.by/rss/"
+      },
+      "id": "rss-belta",
+      "name": "Белта (Беларусь)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://tech.onliner.by/feed"
+      },
+      "id": "rss-onliner",
+      "name": "Onliner (Беларусь)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://news.tut.by/rss/"
+      },
+      "id": "rss-tutby",
+      "name": "TUT.BY (Беларусь)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://mvd.gov.by/ru/rss"
+      },
+      "id": "rss-mvd-by",
+      "name": "МВД Беларуси",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.pravda.com.ua/rss/"
+      },
+      "id": "rss-pravda-ua",
+      "name": "Украинская Правда",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.unian.net/rss/news.xml"
+      },
+      "id": "rss-unian",
+      "name": "УНИАН (Украина)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://censor.net/includes/news_ru.xml"
+      },
+      "id": "rss-censor",
+      "name": "Цензор.нет (Украина)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.gazeta.uz/ru/rss/"
+      },
+      "id": "rss-gazeta-uz",
+      "name": "Газета.uz (Узбекистан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kun.uz/ru/rss"
+      },
+      "id": "rss-kun-uz",
+      "name": "Kun.uz (Узбекистан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 2300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.uzdaily.uz/ru/rss"
+      },
+      "id": "rss-uzdaily",
+      "name": "UzDaily (Узбекистан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://24.kg/rss/"
+      },
+      "id": "rss-24kg",
+      "name": "24.kg (Киргизия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://kloop.kg/feed/"
+      },
+      "id": "rss-kloop",
+      "name": "Kloop (Киргизия)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://arminfo.am/rus/rss/"
+      },
+      "id": "rss-arminfo",
+      "name": "Арм info (Армения)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ru.armeniasputnik.am/export/rss2/index.xml"
+      },
+      "id": "rss-sputnik-am",
+      "name": "Sputnik Армения",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://apa.az/ru.rss"
+      },
+      "id": "rss-apa",
+      "name": "APA (Азербайджан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.trend.az/feeds/news.rss"
+      },
+      "id": "rss-trend",
+      "name": "Trend (Азербайджан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.ipn.md/ru/rss/"
+      },
+      "id": "rss-ipn",
+      "name": "IPN (Молдова)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://asiaplustj.info/rss"
+      },
+      "id": "rss-asiaplus",
+      "name": "Asia-Plus (Таджикистан)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 2500],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-all",
+      "name": "Merge All Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [2300, 1500]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "link",
+              "value": "={{ $json.link }}"
+            },
+            {
+              "name": "pubDate",
+              "value": "={{ $json.pubDate || $json.isoDate }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.contentSnippet || $json.description || '' }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.source?.title || 'Unknown' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-fields",
+      "name": "Normalize Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2550, 1500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "condition-date",
+              "leftValue": "={{ $json.pubDate }}",
+              "rightValue": "={{ $now.minus({hours: 12}).toISO() }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-12h",
+      "name": "Filter Last 12h",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [2800, 1500]
+    },
+    {
+      "parameters": {
+        "operation": "removeDuplicates",
+        "compare": "selectedFields",
+        "fieldsToCompare": "title"
+      },
+      "id": "remove-duplicates",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1,
+      "position": [3050, 1500]
+    },
+    {
+      "parameters": {
+        "maxItems": 100
+      },
+      "id": "limit-items",
+      "name": "Limit to 100",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [3300, 1500]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "aggregate-news",
+      "name": "Aggregate News",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [3550, 1500]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Вы эксперт-аналитик по наркоситуации в России и странах СНГ. Ваша задача:\n\n1. ФИЛЬТРАЦИЯ: Выбрать только новости о:\n   - Изъятии наркотиков (героин, кокаин, метамфетамин, синтетика, марихуана, фентанил)\n   - Задержании наркокурьеров и наркоторговцев\n   - Обнаружении нарколабораторий\n   - Пресечении каналов наркотрафика\n   - Приговорах по наркостатьям\n   - Операциях спецслужб против наркогруппировок\n\n2. ИСКЛЮЧИТЬ:\n   - Дебаты о наркополитике\n   - Медицинскую марихуану\n   - Лечение наркозависимости\n   - Мнения и статьи\n\n3. ФОРМАТ ВЫВОДА:\n   Создать ежедневную сводку:\n   - Заголовок: \"📰 СВОДКА SKYNET: Борьба с наркотиками\" + дата\n   - Для каждой релевантной новости:\n     * Флаг региона/страны\n     * Краткий заголовок (1 строка)\n     * Ключевые детали: что изъято, количество, задержаны\n     * Ссылка на источник\n   - Статистика в конце\n\n4. ПРИОРИТЕТ:\n   - Крупные изъятия (килограммы, тонны)\n   - Межрегиональные операции\n   - Обнаружение лабораторий\n   - Важные задержания\n\n5. ОСОБОЕ ВНИМАНИЕ:\n   - Все регионы России (85 субъектов)\n   - Страны СНГ: Казахстан, Беларусь, Украина, Узбекистан, Киргизия, Армения, Азербайджан, Молдова, Таджикистан\n   - Трансграничный трафик\n   - Новые виды синтетических наркотиков"
+            },
+            {
+              "role": "user",
+              "content": "=Проанализируй эти новости и создай сводку:\n\n{{ JSON.stringify($json.data, null, 2) }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.3
+        }
+      },
+      "id": "openai-analyze",
+      "name": "AI Analyze & Summarize",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [3800, 1500],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "-1001121854465",
+        "text": "={{ $json.content }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": false
+        }
+      },
+      "id": "telegram-send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [4050, 1500],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 🇷🇺 ФЕДЕРАЛЬНЫЕ ИСТОЧНИКИ (9)\n\n### Государственные:\n- МВД РФ\n- Росгвардия\n- Генпрокуратура РФ\n- СК РФ\n\n### Новостные агентства:\n- ТАСС Происшествия\n- РИА Новости\n- Интерфакс\n- Lenta.ru\n- Газета.ру",
+        "height": 350,
+        "width": 300
+      },
+      "id": "sticky-federal",
+      "name": "Федеральные источники",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 0]
+    },
+    {
+      "parameters": {
+        "content": "## 🏛️ ЦЕНТРАЛЬНЫЙ ФО (24)\n\n### Москва и МО:\n- МК, Вечерняя Москва\n- Москва 24, Мослента\n- Подмосковье Сегодня\n\n### СПб и ЛО:\n- Фонтанка, СПб дневник\n- Мойка78\n\n### Регионы:\nБелгород, Брянск, Владимир\nВоронеж, Иваново, Калуга\nКострома, Курск, Липецк\nОрел, Рязань, Смоленск\nТамбов, Тверь, Тула, Ярославль",
+        "height": 400,
+        "width": 300
+      },
+      "id": "sticky-cfo",
+      "name": "Центральный ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 🌊 СЕВЕРО-ЗАПАДНЫЙ ФО (8)\n\nАрхангельск, Вологда\nКалининград, Карелия\nКоми, Мурманск\nНовгород, Псков",
+        "height": 250,
+        "width": 300
+      },
+      "id": "sticky-szfo",
+      "name": "Северо-Западный ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 850]
+    },
+    {
+      "parameters": {
+        "content": "## 🏔️ СЕВЕРО-КАВКАЗСКИЙ ФО (7)\n\nДагестан, Ингушетия\nКабардино-Балкария\nКарачаево-Черкесия\nСеверная Осетия\nЧечня, Ставрополь",
+        "height": 250,
+        "width": 300
+      },
+      "id": "sticky-skfo",
+      "name": "Северо-Кавказский ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 1150]
+    },
+    {
+      "parameters": {
+        "content": "## 🌾 ЮЖНЫЙ ФО (8)\n\nКраснодар, Сочи\nАдыгея, Астрахань\nВолгоград, Ростов\nКрым, Севастополь",
+        "height": 250,
+        "width": 300
+      },
+      "id": "sticky-ufo",
+      "name": "Южный ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 1450]
+    },
+    {
+      "parameters": {
+        "content": "## 🌅 ПРИВОЛЖСКИЙ ФО (14)\n\nНижний Новгород, Киров\nСамара, Саратов, Казань\nИжевск, Уфа, Пермь\nОренбург, Пенза\nУльяновск, Чебоксары\nЙошкар-Ола, Саранск",
+        "height": 300,
+        "width": 300
+      },
+      "id": "sticky-pfo",
+      "name": "Приволжский ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 1750]
+    },
+    {
+      "parameters": {
+        "content": "## ⛰️ УРАЛЬСКИЙ ФО (6)\n\nЕкатеринбург, Челябинск\nТюмень, Курган\nХанты-Мансийск (ХМАО)\nСалехард (ЯНАО)",
+        "height": 250,
+        "width": 300
+      },
+      "id": "sticky-urfo",
+      "name": "Уральский ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 2100]
+    },
+    {
+      "parameters": {
+        "content": "## 🌲 СИБИРСКИЙ ФО (10)\n\nНовосибирск, Омск\nТомск, Кемерово\nКрасноярск, Иркутск\nБарнаул, Горно-Алтайск\nАбакан, Кызыл",
+        "height": 300,
+        "width": 300
+      },
+      "id": "sticky-sfo",
+      "name": "Сибирский ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 2400]
+    },
+    {
+      "parameters": {
+        "content": "## 🌏 ДАЛЬНЕВОСТОЧНЫЙ ФО (9)\n\nВладивосток, Хабаровск\nБлаговещенск, Якутск\nМагадан, Южно-Сахалинск\nПетропавловск-Камчатский\nАнадырь, Биробиджан",
+        "height": 300,
+        "width": 300
+      },
+      "id": "sticky-dfo",
+      "name": "Дальневосточный ФО",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 2750]
+    },
+    {
+      "parameters": {
+        "content": "## 🌍 СНГ (22 источника)\n\n### Казахстан (4):\n- Tengrinews, Zakon.kz\n- МВД Казахстана, Nur.kz\n\n### Беларусь (4):\n- Белта, Onliner\n- TUT.BY, МВД Беларуси\n\n### Украина (3):\n- Украинская Правда\n- УНИАН, Цензор.нет\n\n### Узбекистан (3):\n- Газета.uz, Kun.uz\n- UzDaily\n\n### Киргизия (2):\n- 24.kg, Kloop\n\n### Армения (2):\n- Арм info\n- Sputnik Армения\n\n### Азербайджан (2):\n- APA, Trend\n\n### Молдова (1):\n- IPN\n\n### Таджикистан (1):\n- Asia-Plus",
+        "height": 550,
+        "width": 300
+      },
+      "id": "sticky-cis",
+      "name": "СНГ источники",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 3100]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ НАСТРОЙКА\n\n1. **OpenAI API Key**\n   - Добавить credential: OpenAI API\n\n2. **Telegram Bot**\n   - Создать бота через @BotFather\n   - Добавить credential: Telegram API\n   - Chat ID: -1001121854465\n\n3. **Расписание**\n   - Каждые 12 часов\n   - Фильтр: последние 12 часов\n   - Лимит: 100 новостей\n\n4. **117 RSS источников**\n   - Россия: 95 источников\n   - СНГ: 22 источника",
+        "height": 400,
+        "width": 400
+      },
+      "id": "sticky-setup",
+      "name": "Настройка",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2500, 100]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {"node": "МВД РФ", "type": "main", "index": 0},
+          {"node": "Росгвардия", "type": "main", "index": 0},
+          {"node": "Генпрокуратура РФ", "type": "main", "index": 0},
+          {"node": "СК РФ", "type": "main", "index": 0},
+          {"node": "ТАСС Происшествия", "type": "main", "index": 0},
+          {"node": "РИА Новости Происшествия", "type": "main", "index": 0},
+          {"node": "Интерфакс", "type": "main", "index": 0},
+          {"node": "Lenta.ru Россия", "type": "main", "index": 0},
+          {"node": "Газета.ру Происшествия", "type": "main", "index": 0},
+          {"node": "Московский Комсомолец", "type": "main", "index": 0},
+          {"node": "Вечерняя Москва", "type": "main", "index": 0},
+          {"node": "Москва 24", "type": "main", "index": 0},
+          {"node": "Мослента", "type": "main", "index": 0},
+          {"node": "Подмосковье Сегодня", "type": "main", "index": 0},
+          {"node": "Фонтанка.ру", "type": "main", "index": 0},
+          {"node": "Петербургский дневник", "type": "main", "index": 0},
+          {"node": "Мойка78", "type": "main", "index": 0},
+          {"node": "Белгород", "type": "main", "index": 0},
+          {"node": "Брянск", "type": "main", "index": 0},
+          {"node": "Владимир", "type": "main", "index": 0},
+          {"node": "Воронеж", "type": "main", "index": 0},
+          {"node": "Иваново", "type": "main", "index": 0},
+          {"node": "Калуга", "type": "main", "index": 0},
+          {"node": "Кострома", "type": "main", "index": 0},
+          {"node": "Курск", "type": "main", "index": 0},
+          {"node": "Липецк", "type": "main", "index": 0},
+          {"node": "Орел", "type": "main", "index": 0},
+          {"node": "Рязань", "type": "main", "index": 0},
+          {"node": "Смоленск", "type": "main", "index": 0},
+          {"node": "Тамбов", "type": "main", "index": 0},
+          {"node": "Тверь", "type": "main", "index": 0},
+          {"node": "Тула", "type": "main", "index": 0},
+          {"node": "Ярославль", "type": "main", "index": 0},
+          {"node": "Архангельск", "type": "main", "index": 0},
+          {"node": "Вологда", "type": "main", "index": 0},
+          {"node": "Калининград", "type": "main", "index": 0},
+          {"node": "Карелия (Петрозаводск)", "type": "main", "index": 0},
+          {"node": "Коми (Сыктывкар)", "type": "main", "index": 0},
+          {"node": "Мурманск", "type": "main", "index": 0},
+          {"node": "Новгород", "type": "main", "index": 0},
+          {"node": "Псков", "type": "main", "index": 0},
+          {"node": "Дагестан (Махачкала)", "type": "main", "index": 0},
+          {"node": "Ингушетия (Магас)", "type": "main", "index": 0},
+          {"node": "Кабардино-Балкария (Нальчик)", "type": "main", "index": 0},
+          {"node": "Карачаево-Черкесия (Черкесск)", "type": "main", "index": 0},
+          {"node": "Северная Осетия (Владикавказ)", "type": "main", "index": 0},
+          {"node": "Чечня (Грозный)", "type": "main", "index": 0},
+          {"node": "Ставрополь", "type": "main", "index": 0},
+          {"node": "Краснодар", "type": "main", "index": 0},
+          {"node": "Сочи", "type": "main", "index": 0},
+          {"node": "Адыгея (Майкоп)", "type": "main", "index": 0},
+          {"node": "Астрахань", "type": "main", "index": 0},
+          {"node": "Волгоград", "type": "main", "index": 0},
+          {"node": "Ростов-на-Дону", "type": "main", "index": 0},
+          {"node": "Крым (Симферополь)", "type": "main", "index": 0},
+          {"node": "Севастополь", "type": "main", "index": 0},
+          {"node": "Нижний Новгород", "type": "main", "index": 0},
+          {"node": "Киров", "type": "main", "index": 0},
+          {"node": "Самара", "type": "main", "index": 0},
+          {"node": "Саратов", "type": "main", "index": 0},
+          {"node": "Казань (Татарстан)", "type": "main", "index": 0},
+          {"node": "Ижевск (Удмуртия)", "type": "main", "index": 0},
+          {"node": "Уфа (Башкортостан)", "type": "main", "index": 0},
+          {"node": "Пермь", "type": "main", "index": 0},
+          {"node": "Оренбург", "type": "main", "index": 0},
+          {"node": "Пенза", "type": "main", "index": 0},
+          {"node": "Ульяновск", "type": "main", "index": 0},
+          {"node": "Чебоксары (Чувашия)", "type": "main", "index": 0},
+          {"node": "Йошкар-Ола (Марий Эл)", "type": "main", "index": 0},
+          {"node": "Саранск (Мордовия)", "type": "main", "index": 0},
+          {"node": "Екатеринбург", "type": "main", "index": 0},
+          {"node": "Челябинск", "type": "main", "index": 0},
+          {"node": "Тюмень", "type": "main", "index": 0},
+          {"node": "Курган", "type": "main", "index": 0},
+          {"node": "Ханты-Мансийск (ХМАО)", "type": "main", "index": 0},
+          {"node": "Салехард (ЯНАО)", "type": "main", "index": 0},
+          {"node": "Новосибирск", "type": "main", "index": 0},
+          {"node": "Омск", "type": "main", "index": 0},
+          {"node": "Томск", "type": "main", "index": 0},
+          {"node": "Кемерово", "type": "main", "index": 0},
+          {"node": "Красноярск", "type": "main", "index": 0},
+          {"node": "Иркутск", "type": "main", "index": 0},
+          {"node": "Барнаул (Алтайский край)", "type": "main", "index": 0},
+          {"node": "Горно-Алтайск (Алтай)", "type": "main", "index": 0},
+          {"node": "Абакан (Хакасия)", "type": "main", "index": 0},
+          {"node": "Кызыл (Тува)", "type": "main", "index": 0},
+          {"node": "Владивосток (Приморье)", "type": "main", "index": 0},
+          {"node": "Хабаровск", "type": "main", "index": 0},
+          {"node": "Благовещенск (Амурская обл.)", "type": "main", "index": 0},
+          {"node": "Якутск (Саха)", "type": "main", "index": 0},
+          {"node": "Магадан", "type": "main", "index": 0},
+          {"node": "Южно-Сахалинск", "type": "main", "index": 0},
+          {"node": "Петропавловск-Камчатский", "type": "main", "index": 0},
+          {"node": "Анадырь (Чукотка)", "type": "main", "index": 0},
+          {"node": "Биробиджан (ЕАО)", "type": "main", "index": 0},
+          {"node": "Tengrinews (Казахстан)", "type": "main", "index": 0},
+          {"node": "Zakon.kz (Казахстан)", "type": "main", "index": 0},
+          {"node": "МВД Казахстана", "type": "main", "index": 0},
+          {"node": "Nur.kz (Казахстан)", "type": "main", "index": 0},
+          {"node": "Белта (Беларусь)", "type": "main", "index": 0},
+          {"node": "Onliner (Беларусь)", "type": "main", "index": 0},
+          {"node": "TUT.BY (Беларусь)", "type": "main", "index": 0},
+          {"node": "МВД Беларуси", "type": "main", "index": 0},
+          {"node": "Украинская Правда", "type": "main", "index": 0},
+          {"node": "УНИАН (Украина)", "type": "main", "index": 0},
+          {"node": "Цензор.нет (Украина)", "type": "main", "index": 0},
+          {"node": "Газета.uz (Узбекистан)", "type": "main", "index": 0},
+          {"node": "Kun.uz (Узбекистан)", "type": "main", "index": 0},
+          {"node": "UzDaily (Узбекистан)", "type": "main", "index": 0},
+          {"node": "24.kg (Киргизия)", "type": "main", "index": 0},
+          {"node": "Kloop (Киргизия)", "type": "main", "index": 0},
+          {"node": "Арм info (Армения)", "type": "main", "index": 0},
+          {"node": "Sputnik Армения", "type": "main", "index": 0},
+          {"node": "APA (Азербайджан)", "type": "main", "index": 0},
+          {"node": "Trend (Азербайджан)", "type": "main", "index": 0},
+          {"node": "IPN (Молдова)", "type": "main", "index": 0},
+          {"node": "Asia-Plus (Таджикистан)", "type": "main", "index": 0}
+        ]
+      ]
+    },
+    "МВД РФ": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Росгвардия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Генпрокуратура РФ": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "СК РФ": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "ТАСС Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "РИА Новости Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Интерфакс": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Lenta.ru Россия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Газета.ру Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Московский Комсомолец": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Вечерняя Москва": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Москва 24": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Мослента": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Подмосковье Сегодня": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Фонтанка.ру": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Петербургский дневник": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Мойка78": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Белгород": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Брянск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Владимир": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Воронеж": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Иваново": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Калуга": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Кострома": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Курск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Липецк": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Орел": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Рязань": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Смоленск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Тамбов": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Тверь": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Тула": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ярославль": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Архангельск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Вологда": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Калининград": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Карелия (Петрозаводск)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Коми (Сыктывкар)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Мурманск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Новгород": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Псков": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Дагестан (Махачкала)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ингушетия (Магас)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Кабардино-Балкария (Нальчик)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Карачаево-Черкесия (Черкесск)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Северная Осетия (Владикавказ)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Чечня (Грозный)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ставрополь": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Краснодар": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Сочи": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Адыгея (Майкоп)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Астрахань": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Волгоград": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ростов-на-Дону": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Крым (Симферополь)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Севастополь": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Нижний Новгород": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Киров": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Самара": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Саратов": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Казань (Татарстан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ижевск (Удмуртия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Уфа (Башкортостан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Пермь": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Оренбург": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Пенза": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ульяновск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Чебоксары (Чувашия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Йошкар-Ола (Марий Эл)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Саранск (Мордовия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Екатеринбург": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Челябинск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Тюмень": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Курган": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ханты-Мансийск (ХМАО)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Салехард (ЯНАО)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Новосибирск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Омск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Томск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Кемерово": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Красноярск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Иркутск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Барнаул (Алтайский край)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Горно-Алтайск (Алтай)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Абакан (Хакасия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Кызыл (Тува)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Владивосток (Приморье)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Хабаровск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Благовещенск (Амурская обл.)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Якутск (Саха)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Магадан": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Южно-Сахалинск": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Петропавловск-Камчатский": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Анадырь (Чукотка)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Биробиджан (ЕАО)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Tengrinews (Казахстан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Zakon.kz (Казахстан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "МВД Казахстана": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Nur.kz (Казахстан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Белта (Беларусь)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Onliner (Беларусь)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "TUT.BY (Беларусь)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "МВД Беларуси": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Украинская Правда": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "УНИАН (Украина)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Цензор.нет (Украина)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Газета.uz (Узбекистан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Kun.uz (Узбекистан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "UzDaily (Узбекистан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "24.kg (Киргизия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Kloop (Киргизия)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Арм info (Армения)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Sputnik Армения": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "APA (Азербайджан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Trend (Азербайджан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "IPN (Молдова)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Asia-Plus (Таджикистан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Merge All Sources": {"main": [[{"node": "Normalize Fields", "type": "main", "index": 0}]]},
+    "Normalize Fields": {"main": [[{"node": "Filter Last 12h", "type": "main", "index": 0}]]},
+    "Filter Last 12h": {"main": [[{"node": "Remove Duplicates", "type": "main", "index": 0}]]},
+    "Remove Duplicates": {"main": [[{"node": "Limit to 100", "type": "main", "index": 0}]]},
+    "Limit to 100": {"main": [[{"node": "Aggregate News", "type": "main", "index": 0}]]},
+    "Aggregate News": {"main": [[{"node": "AI Analyze & Summarize", "type": "main", "index": 0}]]},
+    "AI Analyze & Summarize": {"main": [[{"node": "Send to Telegram", "type": "main", "index": 0}]]}
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-19T12:00:00.000Z",
+  "versionId": "1"
+}

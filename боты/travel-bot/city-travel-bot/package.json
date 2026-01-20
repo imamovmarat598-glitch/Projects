@@ -1,0 +1,29 @@
+{
+  "name": "city-travel-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for travel planning with events, hotels, and routes",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "db:migrate": "node dist/database/migrate.js"
+  },
+  "keywords": ["telegram", "bot", "travel", "events", "hotels"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "dotenv": "^16.4.5",
+    "pg": "^8.12.0",
+    "axios": "^1.7.2",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.11.6",
+    "typescript": "^5.4.5",
+    "tsx": "^4.15.0"
+  }
+}
