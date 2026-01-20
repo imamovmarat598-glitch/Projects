@@ -7,3 +7,7 @@ dist/
 *.swo
 .vscode/
 .idea/
+
+# Google Cloud credentials (ВАЖНО: не публикуйте!)
+credentials.json
+service-account-key.json
