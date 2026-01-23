@@ -8,17 +8,20 @@ import {
   Image,
   Linking,
   RefreshControl,
+  Modal,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { PhotoStorage } from '../services/PhotoStorage'
 import { useLocation } from '../hooks/useLocation'
 import { colors } from '../theme/colors'
 import type { PhotoMetadata } from '../types/photo'
+import { SATELLITE_SERVICES } from '../utils/satelliteLinks'
 
 export default function MapScreen() {
   const [photos, setPhotos] = useState<PhotoMetadata[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedPhoto, setSelectedPhoto] = useState<PhotoMetadata | null>(null)
   const { location } = useLocation()
 
   const loadPhotos = useCallback(async () => {
@@ -44,9 +47,14 @@ export default function MapScreen() {
   }
 
   const openInMaps = (photo: PhotoMetadata) => {
-    const { latitude, longitude } = photo.coordinates
-    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
-    Linking.openURL(url)
+    setSelectedPhoto(photo)
+  }
+
+  const openSatelliteService = (serviceId: string, coords: { latitude: number; longitude: number }) => {
+    const service = SATELLITE_SERVICES.find(s => s.id === serviceId)
+    if (service) {
+      Linking.openURL(service.getLink(coords))
+    }
   }
 
   const openAllInMaps = () => {
@@ -163,9 +171,64 @@ export default function MapScreen() {
       <View style={styles.infoBanner}>
         <Ionicons name="information-circle" size={16} color={colors.textSecondary} />
         <Text style={styles.infoText}>
-          Tap on photo to open location in Google Maps
+          Tap on photo to view satellite imagery
         </Text>
       </View>
+
+      {/* Satellite Services Modal */}
+      <Modal
+        visible={selectedPhoto !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedPhoto(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Спутниковые снимки</Text>
+              <TouchableOpacity onPress={() => setSelectedPhoto(null)}>
+                <Ionicons name="close" size={28} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedPhoto && (
+              <>
+                <View style={styles.photoPreview}>
+                  <Image source={{ uri: selectedPhoto.uri }} style={styles.previewImage} />
+                  <Text style={styles.previewCoords}>
+                    {formatCoordinates(
+                      selectedPhoto.coordinates.latitude,
+                      selectedPhoto.coordinates.longitude
+                    )}
+                  </Text>
+                </View>
+
+                <ScrollView style={styles.servicesList}>
+                  {SATELLITE_SERVICES.map((service) => (
+                    <TouchableOpacity
+                      key={service.id}
+                      style={[styles.serviceCard, { borderLeftColor: service.color }]}
+                      onPress={() => {
+                        openSatelliteService(service.id, selectedPhoto.coordinates)
+                        setSelectedPhoto(null)
+                      }}
+                    >
+                      <View style={[styles.serviceIcon, { backgroundColor: service.color + '20' }]}>
+                        <Ionicons name={service.icon as any} size={24} color={service.color} />
+                      </View>
+                      <View style={styles.serviceInfo}>
+                        <Text style={styles.serviceName}>{service.name}</Text>
+                        <Text style={styles.serviceDescription}>{service.description}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -303,5 +366,78 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 100,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '80%',
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  photoPreview: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  previewCoords: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontFamily: 'monospace',
+  },
+  servicesList: {
+    paddingHorizontal: 20,
+  },
+  serviceCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+  },
+  serviceIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  serviceDescription: {
+    fontSize: 13,
+    color: colors.textSecondary,
   },
 })

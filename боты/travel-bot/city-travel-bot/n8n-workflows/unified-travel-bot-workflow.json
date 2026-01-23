@@ -1,0 +1,939 @@
+{
+  "name": "🚀 Travel Bot - Unified Workflow",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "webhook-trigger",
+      "name": "Webhook - City Search",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "city-search"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "cron-daily",
+      "name": "Cron - Daily Event Update",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "cron-6h",
+      "name": "Cron - 24h Notifications",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 700]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "cron-1h",
+      "name": "Cron - 30min Notifications",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 900]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "merge-triggers",
+      "name": "Merge All Triggers",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [500, 600]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "route-webhook",
+              "leftValue": "={{ $json.trigger }}",
+              "rightValue": "webhook",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "route-daily",
+              "leftValue": "={{ $json.trigger }}",
+              "rightValue": "daily_update",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "route-24h",
+              "leftValue": "={{ $json.trigger }}",
+              "rightValue": "notify_24h",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "route-30min",
+              "leftValue": "={{ $json.trigger }}",
+              "rightValue": "notify_30min",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "switch-router",
+      "name": "Route by Trigger Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [750, 600]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "user_requests",
+        "columns": "telegram_id,username,first_name,city,date_from,date_to,request_type,status",
+        "additionalFields": {}
+      },
+      "id": "save-request",
+      "name": "Save User Request",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1000, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://kudago.com/public-api/v1.4/events/?location={{ $json.city }}&actual_since={{ $json.date_from }}&actual_until={{ $json.date_to }}&page_size=20&fields=id,title,description,place,dates,price,images,site_url",
+        "options": {}
+      },
+      "id": "kudago-events",
+      "name": "KudaGo - Get Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://kudago.com/public-api/v1.4/movies/?location={{ $json.city }}&actual_since={{ $json.date_from }}&page_size=10&fields=id,title,description,year,trailer,poster,site_url",
+        "options": {}
+      },
+      "id": "kudago-cinema",
+      "name": "KudaGo - Get Cinema",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1250, 450]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Создай краткий туристический обзор города {{ $json.city }} для поездки с {{ $json.date_from }} по {{ $json.date_to }}. Учти следующие события:\n{{ $json.events }}\n\nФормат: 2-3 абзаца про город, что посмотреть, атмосферу."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 500
+        }
+      },
+      "id": "openai-summary",
+      "name": "OpenAI - City Summary",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1500, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Дай топ-5 достопримечательностей города {{ $json.city }} с кратким описанием каждой (1-2 предложения). Формат JSON:\n[\n  {\n    \"name\": \"Название\",\n    \"description\": \"Описание\",\n    \"address\": \"Адрес (если известен)\"\n  }\n]"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 800,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "openai-attractions",
+      "name": "OpenAI - Attractions",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1500, 350],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "=Порекомендуй 5 гостиниц и хостелов в городе {{ $json.city }} с хорошими отзывами. Укажи примерную цену за ночь, звезды (если отель), основные плюсы. Формат JSON:\n[\n  {\n    \"name\": \"Название\",\n    \"type\": \"hotel\" или \"hostel\",\n    \"stars\": 3-5 (для отелей),\n    \"price\": \"от XXXX₽\",\n    \"pros\": \"Основные плюсы\",\n    \"rating\": 4.5\n  }\n]"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 1000,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "openai-hotels",
+      "name": "OpenAI - Hotels",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [1500, 500],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-creds",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "merge-ai-data",
+      "name": "Merge All AI Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [1750, 350]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst result = {\n  success: true,\n  city: items[0].json.city,\n  date_from: items[0].json.date_from,\n  date_to: items[0].json.date_to,\n  summary: items[0].json.summary || '',\n  events: items[0].json.events || [],\n  cinema: items[0].json.cinema || [],\n  attractions: JSON.parse(items[0].json.attractions || '[]'),\n  hotels: JSON.parse(items[0].json.hotels || '[]'),\n  request_id: items[0].json.request_id\n};\n\nreturn { json: result };"
+      },
+      "id": "combine-response",
+      "name": "Combine Final Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 350]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "user_requests",
+        "where": "id={{ $json.request_id }}",
+        "columns": "status,response_data,updated_at",
+        "additionalFields": {}
+      },
+      "id": "update-request",
+      "name": "Update Request Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2250, 350],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Return to Bot",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2500, 350]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT city FROM favorites WHERE telegram_id IS NOT NULL",
+        "additionalFields": {}
+      },
+      "id": "get-cities",
+      "name": "Get All Cities",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1000, 500],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "loop-cities",
+      "name": "Loop Through Cities",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1250, 500]
+    },
+    {
+      "parameters": {
+        "url": "=https://kudago.com/public-api/v1.4/events/?location={{ $json.city }}&actual_since={{ Math.floor(Date.now() / 1000) }}&page_size=50&fields=id,title,description,place,dates,price,images,site_url",
+        "options": {}
+      },
+      "id": "kudago-update",
+      "name": "KudaGo - Update Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1500, 500]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "table": "events_cache",
+        "columns": "event_id,city,title,description,place,event_date,price,image_url,site_url,is_active",
+        "additionalFields": {}
+      },
+      "id": "save-events",
+      "name": "Save/Update Events",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1750, 500],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT es.*, ec.title, ec.place, ec.event_date, ec.site_url, u.telegram_id, u.username FROM event_subscriptions es JOIN events_cache ec ON es.event_id = ec.event_id JOIN users u ON es.telegram_id = u.telegram_id WHERE es.notified_24h = false AND ec.event_date BETWEEN NOW() + INTERVAL '23 hours' AND NOW() + INTERVAL '25 hours' AND ec.is_active = true",
+        "additionalFields": {}
+      },
+      "id": "get-24h-subscriptions",
+      "name": "Get 24h Subscriptions",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1000, 700],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "loop-24h",
+      "name": "Loop 24h Notifications",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1250, 700]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.telegram_id }}",
+        "text": "=🔔 Напоминание о событии\n\n{{ $json.title }}\n📍 {{ $json.place }}\n📅 Завтра, {{ new Date($json.event_date).toLocaleString('ru-RU') }}\n\nНе забудьте купить билеты!\n{{ $json.site_url ? '🔗 ' + $json.site_url : '' }}",
+        "additionalFields": {}
+      },
+      "id": "send-24h-notification",
+      "name": "Send 24h Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1500, 700],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "event_subscriptions",
+        "where": "id={{ $json.id }}",
+        "columns": "notified_24h",
+        "additionalFields": {}
+      },
+      "id": "mark-24h-sent",
+      "name": "Mark 24h Sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1750, 700],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT es.*, ec.title, ec.place, ec.event_date, u.telegram_id FROM event_subscriptions es JOIN events_cache ec ON es.event_id = ec.event_id JOIN users u ON es.telegram_id = u.telegram_id WHERE es.notified_30min = false AND ec.event_date BETWEEN NOW() + INTERVAL '25 minutes' AND NOW() + INTERVAL '35 minutes' AND ec.is_active = true",
+        "additionalFields": {}
+      },
+      "id": "get-30min-subscriptions",
+      "name": "Get 30min Subscriptions",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1000, 900],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "loop-30min",
+      "name": "Loop 30min Notifications",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1250, 900]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.telegram_id }}",
+        "text": "=⏰ Скоро начнется!\n\n{{ $json.title }}\n📍 {{ $json.place }}\n⏱ Начало через 30 минут ({{ new Date($json.event_date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }})\n\nУдачи! 🎉",
+        "additionalFields": {}
+      },
+      "id": "send-30min-notification",
+      "name": "Send 30min Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1500, 900],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "event_subscriptions",
+        "where": "id={{ $json.id }}",
+        "columns": "notified_30min",
+        "additionalFields": {}
+      },
+      "id": "mark-30min-sent",
+      "name": "Mark 30min Sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1750, 900],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-creds",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { trigger: 'webhook', ...items[0].json } }];"
+      },
+      "id": "tag-webhook",
+      "name": "Tag as Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { trigger: 'daily_update' } }];"
+      },
+      "id": "tag-daily",
+      "name": "Tag as Daily Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { trigger: 'notify_24h' } }];"
+      },
+      "id": "tag-24h",
+      "name": "Tag as 24h Notify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { trigger: 'notify_30min' } }];"
+      },
+      "id": "tag-30min",
+      "name": "Tag as 30min Notify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 900]
+    }
+  ],
+  "connections": {
+    "Webhook - City Search": {
+      "main": [
+        [
+          {
+            "node": "Tag as Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron - Daily Event Update": {
+      "main": [
+        [
+          {
+            "node": "Tag as Daily Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron - 24h Notifications": {
+      "main": [
+        [
+          {
+            "node": "Tag as 24h Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron - 30min Notifications": {
+      "main": [
+        [
+          {
+            "node": "Tag as 30min Notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag as Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge All Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag as Daily Update": {
+      "main": [
+        [
+          {
+            "node": "Merge All Triggers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Tag as 24h Notify": {
+      "main": [
+        [
+          {
+            "node": "Merge All Triggers",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Tag as 30min Notify": {
+      "main": [
+        [
+          {
+            "node": "Merge All Triggers",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge All Triggers": {
+      "main": [
+        [
+          {
+            "node": "Route by Trigger Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Trigger Type": {
+      "main": [
+        [
+          {
+            "node": "Save User Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get All Cities",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get 24h Subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get 30min Subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save User Request": {
+      "main": [
+        [
+          {
+            "node": "KudaGo - Get Events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "KudaGo - Get Cinema",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenAI - City Summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenAI - Attractions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenAI - Hotels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KudaGo - Get Events": {
+      "main": [
+        [
+          {
+            "node": "Merge All AI Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KudaGo - Get Cinema": {
+      "main": [
+        [
+          {
+            "node": "Merge All AI Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI - City Summary": {
+      "main": [
+        [
+          {
+            "node": "Merge All AI Data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "OpenAI - Attractions": {
+      "main": [
+        [
+          {
+            "node": "Merge All AI Data",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI - Hotels": {
+      "main": [
+        [
+          {
+            "node": "Merge All AI Data",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge All AI Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Final Response": {
+      "main": [
+        [
+          {
+            "node": "Update Request Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Request Status": {
+      "main": [
+        [
+          {
+            "node": "Return to Bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Cities": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Cities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Cities": {
+      "main": [
+        [
+          {
+            "node": "KudaGo - Update Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KudaGo - Update Events": {
+      "main": [
+        [
+          {
+            "node": "Save/Update Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save/Update Events": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Cities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 24h Subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Loop 24h Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop 24h Notifications": {
+      "main": [
+        [
+          {
+            "node": "Send 24h Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 24h Notification": {
+      "main": [
+        [
+          {
+            "node": "Mark 24h Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark 24h Sent": {
+      "main": [
+        [
+          {
+            "node": "Loop 24h Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 30min Subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Loop 30min Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop 30min Notifications": {
+      "main": [
+        [
+          {
+            "node": "Send 30min Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 30min Notification": {
+      "main": [
+        [
+          {
+            "node": "Mark 30min Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark 30min Sent": {
+      "main": [
+        [
+          {
+            "node": "Loop 30min Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

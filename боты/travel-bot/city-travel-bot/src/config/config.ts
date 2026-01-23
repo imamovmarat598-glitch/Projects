@@ -7,6 +7,10 @@ export const config = {
     botToken: process.env.TELEGRAM_BOT_TOKEN || '',
     paymentProviderToken: process.env.PAYMENT_PROVIDER_TOKEN || '',
   },
+  supabase: {
+    url: process.env.SUPABASE_URL || '',
+    anonKey: process.env.SUPABASE_ANON_KEY || '',
+  },
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/city_travel_bot',
   },

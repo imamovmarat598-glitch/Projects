@@ -1,0 +1,170 @@
+{
+  "name": "Travel Bot - Notify 24h Before Event",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Schedule Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "id": "schedule-trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/events_cache?is_active=eq.true&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300],
+      "id": "get-events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);\nconst in25Hours = new Date(now.getTime() + 25 * 60 * 60 * 1000);\n\nconst upcomingEvents = [];\n\nfor (const item of $input.all()) {\n  const event = item.json;\n  const eventDate = new Date(event.event_date);\n  \n  if (eventDate >= in24Hours && eventDate <= in25Hours) {\n    upcomingEvents.push({\n      event_id: event.event_id,\n      city: event.city,\n      title: event.title,\n      description: event.description,\n      event_date: event.event_date,\n      price: event.price,\n      image_url: event.image_url,\n      venue_name: event.venue_name,\n      venue_address: event.venue_address,\n      kudago_url: event.kudago_url\n    });\n  }\n}\n\nif (upcomingEvents.length === 0) {\n  return [];\n}\n\nreturn upcomingEvents.map(e => ({ json: e }));"
+      },
+      "name": "Find Events in 24h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "id": "find-24h-events"
+    },
+    {
+      "parameters": {
+        "url": "https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/favorites?notify_new_events=eq.true&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Subscribed Users",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300],
+      "id": "get-users"
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $input.first().json;\nconst allFavorites = $('Get Subscribed Users').all();\n\nconst subscribedUsers = [];\n\nfor (const fav of allFavorites) {\n  if (fav.json.city === event.city) {\n    subscribedUsers.push({\n      telegram_id: fav.json.user_id,\n      city: event.city,\n      event_title: event.title,\n      event_description: event.description || '',\n      event_date: event.event_date,\n      event_price: event.price,\n      event_image: event.image_url,\n      event_venue: event.venue_name,\n      event_address: event.venue_address,\n      event_url: event.kudago_url\n    });\n  }\n}\n\nreturn subscribedUsers.map(u => ({ json: u }));"
+      },
+      "name": "Match Users to Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "id": "match-users"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $json.telegram_id }}",
+        "text": "=🔔 *Напоминание о событии*\\n\\n{{ $json.event_title }}\\n\\n📍 {{ $json.event_venue }}\\n📅 {{ new Date($json.event_date).toLocaleString('ru-RU') }}\\n💰 {{ $json.event_price }}\\n\\n{{ $json.event_description.substring(0, 200) }}...\\n\\n🔗 [Подробнее]({{ $json.event_url }})",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "name": "Send Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1250, 300],
+      "id": "send-telegram",
+      "credentials": {
+        "telegramApi": "telegram-bot-credentials"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Get Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "main": [
+        [
+          {
+            "node": "Find Events in 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Events in 24h": {
+      "main": [
+        [
+          {
+            "node": "Get Subscribed Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Subscribed Users": {
+      "main": [
+        [
+          {
+            "node": "Match Users to Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Users to Event": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

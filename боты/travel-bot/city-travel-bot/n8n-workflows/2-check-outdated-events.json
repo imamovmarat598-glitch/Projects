@@ -1,0 +1,156 @@
+{
+  "name": "Travel Bot - Check Outdated Events",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "name": "Schedule Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "id": "schedule-trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/events_cache?is_active=eq.true&select=*",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Active Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300],
+      "id": "get-events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst outdatedEvents = [];\n\nfor (const item of $input.all()) {\n  const event = item.json;\n  const eventDate = new Date(event.event_date);\n  \n  if (eventDate < now) {\n    outdatedEvents.push({\n      id: event.id,\n      event_id: event.event_id,\n      title: event.title,\n      event_date: event.event_date\n    });\n  }\n}\n\nif (outdatedEvents.length === 0) {\n  return [{ json: { message: 'No outdated events', count: 0 } }];\n}\n\nreturn outdatedEvents.map(e => ({ json: e }));"
+      },
+      "name": "Find Outdated Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "id": "find-outdated"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.count }}",
+              "operation": "notEqual",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "Has Outdated?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "id": "check-outdated"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/events_cache?id=eq.{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"is_active\": false}",
+        "options": {}
+      },
+      "name": "Mark as Inactive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 200],
+      "id": "mark-inactive"
+    }
+  ],
+  "connections": {
+    "Schedule Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Get Active Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Events": {
+      "main": [
+        [
+          {
+            "node": "Find Outdated Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Outdated Events": {
+      "main": [
+        [
+          {
+            "node": "Has Outdated?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Outdated?": {
+      "main": [
+        [
+          {
+            "node": "Mark as Inactive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

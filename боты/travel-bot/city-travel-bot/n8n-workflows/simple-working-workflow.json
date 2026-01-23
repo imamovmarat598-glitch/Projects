@@ -1,0 +1,150 @@
+{
+  "name": "Travel Bot - Simple Working",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "city-search",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "city",
+              "name": "city",
+              "value": "={{ $json.city }}",
+              "type": "string"
+            },
+            {
+              "id": "telegram_id",
+              "name": "telegram_id",
+              "value": "={{ $json.telegram_id }}",
+              "type": "number"
+            },
+            {
+              "id": "date_from",
+              "name": "date_from",
+              "value": "={{ $json.date_from }}",
+              "type": "string"
+            },
+            {
+              "id": "date_to",
+              "name": "date_to",
+              "value": "={{ $json.date_to }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-data",
+      "name": "Extract Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://kudago.com/public-api/v1.4/events/?location=msk&page_size=10&fields=id,title,place,dates,description,price,images",
+        "options": {}
+      },
+      "id": "get-events",
+      "name": "Get Events (KudaGo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result",
+              "name": "success",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "city",
+              "name": "city",
+              "value": "={{ $('Extract Data').item.json.city }}",
+              "type": "string"
+            },
+            {
+              "id": "summary",
+              "name": "summary",
+              "value": "Информация о городе {{ $('Extract Data').item.json.city }}. События загружены из KudaGo API.",
+              "type": "string"
+            },
+            {
+              "id": "events",
+              "name": "events",
+              "value": "={{ $json.results }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Data": {
+      "main": [
+        [
+          {
+            "node": "Get Events (KudaGo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events (KudaGo)": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-22T00:00:00.000Z",
+  "versionId": ""
+}

@@ -1,15 +1,17 @@
 // Безопасная обертка для работы с БД без падений
-import { userDb, searchHistoryDb } from '../database/db.js';
+// Использует: Supabase → In-memory fallback
+import { supabaseService } from '../services/supabase.service.js';
 
 // In-memory хранилище когда БД недоступна
 const memoryStorage = new Map<number, any>();
+const memoryFavorites = new Map<number, string[]>();
 
 export const safeUserDb = {
   async findOrCreate(telegramId: number, userData: any) {
     try {
-      return await userDb.findOrCreate(telegramId, userData);
+      return await supabaseService.findOrCreateUser(telegramId, userData);
     } catch (error) {
-      // БД недоступна - используем память
+      console.warn('⚠️ Supabase unavailable, using in-memory storage');
       if (!memoryStorage.has(telegramId)) {
         memoryStorage.set(telegramId, {
           id: telegramId,
@@ -28,52 +30,91 @@ export const safeUserDb = {
 
   async getByTelegramId(telegramId: number) {
     try {
-      return await userDb.getByTelegramId(telegramId);
+      return await supabaseService.findOrCreateUser(telegramId, { telegram_id: telegramId });
     } catch (error) {
       return memoryStorage.get(telegramId) || null;
     }
   },
 
-  async checkRequestLimit(userId: number) {
+  async checkRequestLimit(telegramId: number) {
+    // В текущей версии - безлимит
+    return { allowed: true, remaining: -1 };
+  },
+
+  async incrementRequests(telegramId: number) {
+    // Пока не используется
+  },
+
+  async checkSubscription(telegramId: number) {
+    return 'free' as const;
+  },
+
+  async updateSubscription(telegramId: number, type: any, expiresAt: Date) {
+    // Пока не используется
+  },
+};
+
+export const safeFavoritesDb = {
+  async add(userId: number, city: string) {
     try {
-      return await userDb.checkRequestLimit(userId);
+      await supabaseService.addFavorite(userId, city);
     } catch (error) {
-      // Без БД - безлимит
-      return { allowed: true, remaining: -1 };
+      console.warn('⚠️ Using in-memory favorites');
+      if (!memoryFavorites.has(userId)) {
+        memoryFavorites.set(userId, []);
+      }
+      const favorites = memoryFavorites.get(userId)!;
+      if (!favorites.includes(city)) {
+        favorites.push(city);
+      }
     }
   },
 
-  async incrementRequests(userId: number) {
+  async remove(userId: number, city: string) {
     try {
-      await userDb.incrementRequests(userId);
+      await supabaseService.removeFavorite(userId, city);
     } catch (error) {
-      // Игнорируем
+      const favorites = memoryFavorites.get(userId);
+      if (favorites) {
+        const index = favorites.indexOf(city);
+        if (index > -1) {
+          favorites.splice(index, 1);
+        }
+      }
     }
   },
 
-  async checkSubscription(userId: number) {
+  async getAll(userId: number) {
     try {
-      return await userDb.checkSubscription(userId);
+      return await supabaseService.getFavorites(userId);
     } catch (error) {
-      return 'free' as const;
+      const cities = memoryFavorites.get(userId) || [];
+      return cities.map(city => ({ city, user_id: userId, notify_new_events: true }));
+    }
+  },
+};
+
+export const safeEventsDb = {
+  async getActiveEvents(city?: string) {
+    try {
+      return await supabaseService.getActiveEvents(city);
+    } catch (error) {
+      console.warn('⚠️ Cannot fetch events from Supabase');
+      return [];
     }
   },
 
-  async updateSubscription(userId: number, type: any, expiresAt: Date) {
+  async getEventById(eventId: string) {
     try {
-      await userDb.updateSubscription(userId, type, expiresAt);
+      return await supabaseService.getEventById(eventId);
     } catch (error) {
-      // Игнорируем
+      return null;
     }
   },
 };
 
 export const safeSearchHistoryDb = {
   async add(userId: number, city: string, dateFrom: Date, dateTo: Date) {
-    try {
-      await searchHistoryDb.add(userId, city, dateFrom, dateTo);
-    } catch (error) {
-      // Игнорируем
-    }
+    // Пока не используется
   },
 };

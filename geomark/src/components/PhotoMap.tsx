@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useSyncExternalStore, useState } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, LayersControl } from 'react-leaflet'
 import L from 'leaflet'
 import type { Photo } from '@/types/database'
 import { formatDate, formatCoordinates } from '@/lib/utils'
@@ -27,17 +27,18 @@ interface PhotoMapProps {
   onPhotoClick?: (photo: Photo) => void
 }
 
+// Use useSyncExternalStore to detect client-side mounting
+const subscribe = () => () => {}
+const getSnapshot = () => true
+const getServerSnapshot = () => false
+
 export default function PhotoMap({
   photos,
   center = [55.7558, 37.6173], // Moscow default
   zoom = 10,
   onPhotoClick,
 }: PhotoMapProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   if (!mounted) {
     return (
@@ -64,10 +65,30 @@ export default function PhotoMap({
       className="w-full h-[500px] rounded-lg shadow-md"
       scrollWheelZoom={true}
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <LayersControl position="topright">
+        <LayersControl.BaseLayer checked name="OpenStreetMap">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+        </LayersControl.BaseLayer>
+
+        <LayersControl.BaseLayer name="Спутник (Google)">
+          <TileLayer
+            attribution='&copy; Google'
+            url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+            maxZoom={20}
+          />
+        </LayersControl.BaseLayer>
+
+        <LayersControl.BaseLayer name="Роскосмос (Геопортал)">
+          <TileLayer
+            attribution='&copy; <a href="https://gptl.ru" target="_blank">Геопортал Роскосмоса</a>'
+            url="https://gptl.ru/tile/{z}/{x}/{y}"
+            maxZoom={18}
+          />
+        </LayersControl.BaseLayer>
+      </LayersControl>
 
       {photosWithCoords.map((photo) => (
         <Marker
@@ -96,6 +117,25 @@ export default function PhotoMap({
               {photo.taken_at && (
                 <p className="text-xs text-gray-500 mt-1">{formatDate(photo.taken_at)}</p>
               )}
+
+              <div className="mt-2 pt-2 border-t border-gray-200 flex gap-2">
+                <a
+                  href={`https://gptl.ru/?lat=${photo.latitude}&lon=${photo.longitude}&zoom=15`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 text-center"
+                >
+                  🛰️ Геопортал
+                </a>
+                <a
+                  href={`https://dgearth.ru/?lat=${photo.latitude}&lon=${photo.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 text-center"
+                >
+                  🌍 Цифровая Земля
+                </a>
+              </div>
             </div>
           </Popup>
         </Marker>

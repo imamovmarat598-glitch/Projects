@@ -1,16 +1,25 @@
-import { Telegraf, Context, Scenes } from 'telegraf';
+import { Telegraf, Context, session } from 'telegraf';
 import { config } from '../config/config.js';
 import { safeUserDb, safeSearchHistoryDb } from './db-safe.js';
 import { kudagoService } from '../services/kudago.service.js';
+import { n8nService } from '../services/n8n.service.js';
+import { userRequestsService } from '../services/userRequests.service.js';
 import * as keyboards from './keyboards.js';
 
+export interface SessionData {
+  city?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  userId?: number;
+  searchResults?: any; // Результаты поиска из n8n
+  currentEvent?: any; // Текущее выбранное событие
+  currentHotel?: any; // Текущий выбранный отель
+  awaitingCustomCity?: boolean; // Ожидание ввода города
+  awaitingCustomDates?: boolean; // Ожидание ввода дат
+}
+
 export interface BotContext extends Context {
-  session?: {
-    city?: string;
-    dateFrom?: Date;
-    dateTo?: Date;
-    userId?: number;
-  };
+  session: SessionData;
 }
 
 class TravelBot {
@@ -18,6 +27,22 @@ class TravelBot {
 
   constructor() {
     this.bot = new Telegraf<BotContext>(config.telegram.botToken);
+
+    // Подключаем middleware для сессий
+    this.bot.use(session({
+      defaultSession: () => ({
+        city: undefined,
+        dateFrom: undefined,
+        dateTo: undefined,
+        userId: undefined,
+        searchResults: undefined,
+        currentEvent: undefined,
+        currentHotel: undefined,
+        awaitingCustomCity: false,
+        awaitingCustomDates: false,
+      })
+    }));
+
     this.setupHandlers();
   }
 
@@ -36,16 +61,14 @@ class TravelBot {
 
       await ctx.reply(
         `👋 Привет, ${ctx.from.first_name}!\n\n` +
-        `Я помогу спланировать поездку в любой город.\n\n` +
-        `Выбери город, укажи даты — и получи:\n` +
-        `✅ Афишу концертов и событий\n` +
-        `✅ Лучшие отели с ценами\n` +
-        `✅ Готовый маршрут\n` +
-        `✅ Достопримечательности\n\n` +
-        `🆓 Бесплатно: ${config.limits.freeCities} города, ${config.limits.freeRequestsPerDay} запроса/день\n` +
-        `💎 Premium (${config.pricing.premium}₽/мес): все города, без ограничений\n\n` +
-        `Начнем? Выбери город 👇`,
-        keyboards.mainMenu()
+        `Я помогу спланировать поездку в любой город России.\n\n` +
+        `🤖 С помощью AI я найду для вас:\n` +
+        `🎭 Афишу концертов и событий\n` +
+        `🏛 Достопримечательности\n` +
+        `🏨 Гостиницы с хорошими отзывами\n` +
+        `🎬 Кино в городе\n\n` +
+        `Нажмите "🔍 Поиск города" чтобы начать!`,
+        keyboards.getMainMenuKeyboard()
       );
     });
 
@@ -64,243 +87,570 @@ class TravelBot {
         `• Неограниченные запросы\n` +
         `• Персональные маршруты\n\n` +
         `❓ Возникли вопросы? Напишите /support`,
-        { parse_mode: 'HTML', ...keyboards.mainMenu() }
+        { parse_mode: 'HTML', ...keyboards.getMainMenuKeyboard() }
       );
     });
 
-    // Выбор города
-    this.bot.hears('🏙 Выбрать город', async (ctx) => {
-      const user = await safeUserDb.getByTelegramId(ctx.from.id);
-      if (!user) {
-        await ctx.reply('Ошибка. Используйте /start');
-        return;
-      }
+    // Команда /stats - статистика (admin)
+    this.bot.command('stats', async (ctx) => {
+      try {
+        const stats = await userRequestsService.getOverallStats();
+        const topCities = await userRequestsService.getCityStats(5);
 
-      const subscription = await safeUserDb.checkSubscription(user.id);
+        let message = `📊 <b>Статистика Travel Bot</b>\n\n`;
+        message += `📈 <b>Общая статистика:</b>\n`;
+        message += `• Всего запросов: ${stats.total}\n`;
+        message += `• Успешных: ${stats.successful} ✅\n`;
+        message += `• Ошибок: ${stats.failed} ❌\n`;
+        message += `• Success rate: ${stats.success_rate}%\n\n`;
 
-      if (subscription === 'free') {
-        await ctx.reply(
-          `Выберите город из доступных:\n\n` +
-          `💎 <b>Premium подписка</b> открывает доступ ко всем городам России!`,
-          { parse_mode: 'HTML', ...keyboards.freeCitiesKeyboard() }
-        );
-      } else {
-        await ctx.reply(
-          'Выберите город:',
-          keyboards.allCitiesKeyboard()
-        );
+        if (topCities.length > 0) {
+          message += `🏙 <b>Топ-5 городов:</b>\n`;
+          topCities.forEach((city: any, index: number) => {
+            message += `${index + 1}. ${city.city} - ${city.count} запросов\n`;
+          });
+        }
+
+        await ctx.reply(message, { parse_mode: 'HTML' });
+      } catch (error) {
+        await ctx.reply('Ошибка при получении статистики');
       }
     });
 
-    // Обработка выбора города
-    const cities = ['Москва', 'Санкт-Петербург', 'Казань', 'Екатеринбург', 'Сочи', 'Новосибирск', 'Краснодар', 'Нижний Новгород', 'Владивосток', 'Калининград'];
+    // Команда /history - история запросов пользователя
+    this.bot.command('history', async (ctx) => {
+      try {
+        const requests = await userRequestsService.getUserRequests(ctx.from.id, 5);
 
-    cities.forEach(city => {
-      this.bot.hears(city, async (ctx) => {
-        const user = await safeUserDb.getByTelegramId(ctx.from.id);
-        if (!user) return;
-
-        // Проверка лимитов
-        const { allowed, remaining } = await safeUserDb.checkRequestLimit(user.id);
-        if (!allowed) {
-          await ctx.reply(
-            `⚠️ Достигнут лимит запросов (${config.limits.freeRequestsPerDay}/день)\n\n` +
-            `💎 Оформите Premium подписку для безлимитного доступа!`,
-            keyboards.subscriptionKeyboard()
-          );
+        if (requests.length === 0) {
+          await ctx.reply('У вас пока нет запросов');
           return;
         }
 
-        // Сохраняем выбранный город в сессии
-        if (!ctx.session) ctx.session = {};
-        ctx.session.city = city;
-        ctx.session.userId = user.id;
+        let message = `📜 <b>Ваши последние запросы:</b>\n\n`;
+        requests.forEach((req: any, index: number) => {
+          const date = new Date(req.created_at).toLocaleDateString('ru-RU');
+          const status = req.success ? '✅' : '❌';
+          message += `${index + 1}. ${status} ${req.city} - ${date}\n`;
+        });
 
-        await ctx.reply(
-          `Отлично! Вы выбрали ${city} 🏙\n\n` +
-          `Теперь укажите, на сколько дней планируете поездку:`,
-          keyboards.durationKeyboard()
-        );
-      });
+        await ctx.reply(message, { parse_mode: 'HTML' });
+      } catch (error) {
+        await ctx.reply('Ошибка при получении истории');
+      }
     });
 
-    // Обработка длительности поездки
-    this.bot.hears('1 день', async (ctx) => await this.handleDuration(ctx, 1));
-    this.bot.hears('Выходные (2 дня)', async (ctx) => await this.handleDuration(ctx, 2));
-    this.bot.hears('3-5 дней', async (ctx) => await this.handleDuration(ctx, 4));
-    this.bot.hears('Неделя', async (ctx) => await this.handleDuration(ctx, 7));
-
-    // Показать афишу
-    this.bot.hears('🎭 Афиша', async (ctx) => {
-      if (!ctx.session?.city) {
-        await ctx.reply('Сначала выберите город', keyboards.mainMenu());
-        return;
-      }
-
-      await ctx.reply('🔍 Ищу события...');
-
-      const citySlug = await kudagoService.getCitySlug(ctx.session.city);
-      if (!citySlug) {
-        await ctx.reply('Город не найден в базе данных');
-        return;
-      }
-
-      const events = await kudagoService.getEvents(
-        citySlug,
-        ctx.session.dateFrom,
-        ctx.session.dateTo,
-        10
-      );
-
-      if (events.length === 0) {
-        await ctx.reply(
-          `😔 К сожалению, на выбранные даты событий не найдено.\n\n` +
-          `Попробуйте выбрать другие даты или посмотрите достопримечательности.`,
-          keyboards.resultsMenu()
-        );
-        return;
-      }
-
+    // Выбор города - новая версия с кнопками
+    this.bot.hears('🔍 Поиск города', async (ctx) => {
       await ctx.reply(
-        `📍 ${ctx.session.city}, ${ctx.session.dateFrom?.toLocaleDateString('ru-RU')} - ${ctx.session.dateTo?.toLocaleDateString('ru-RU')}\n\n` +
-        `🎭 Найдено событий: ${events.length}`,
-        keyboards.resultsMenu()
-      );
-
-      // Отправляем первые 5 событий
-      for (let i = 0; i < Math.min(5, events.length); i++) {
-        const event = events[i];
-        const message = kudagoService.formatEventMessage(event);
-
-        try {
-          if (event.images && event.images.length > 0) {
-            await ctx.replyWithPhoto(event.images[0].image, {
-              caption: message,
-              parse_mode: 'HTML',
-              ...keyboards.eventButtons(event.site_url),
-            });
-          } else {
-            await ctx.reply(message, {
-              parse_mode: 'HTML',
-              ...keyboards.eventButtons(event.site_url),
-            });
-          }
-        } catch (error) {
-          console.error('Error sending event:', error);
-        }
-      }
-
-      if (events.length > 5) {
-        await ctx.reply(`И еще ${events.length - 5} событий! 🎉`);
-      }
-    });
-
-    // Отели (заглушка)
-    this.bot.hears('🏨 Отели', async (ctx) => {
-      if (!ctx.session?.city) {
-        await ctx.reply('Сначала выберите город', keyboards.mainMenu());
-        return;
-      }
-
-      await ctx.reply(
-        `🏨 <b>Отели в городе ${ctx.session.city}</b>\n\n` +
-        `⭐️⭐️⭐️⭐️⭐️ Rival Hotel\n` +
-        `💰 4500₽/ночь\n` +
-        `📍 В центре города\n\n` +
-        `⭐️⭐️⭐️⭐️ Hampton by Hilton\n` +
-        `💰 3200₽/ночь\n` +
-        `📍 1.2 км от центра\n\n` +
-        `💎 Premium: полный список отелей с бронированием`,
-        { parse_mode: 'HTML', ...keyboards.resultsMenu() }
+        'Выберите город из списка или введите свой:',
+        keyboards.getCitiesKeyboard()
       );
     });
 
-    // Premium подписка
-    this.bot.hears('💎 Premium подписка', async (ctx) => {
-      await ctx.reply(
-        `💎 <b>Premium подписка</b>\n\n` +
-        `<b>Преимущества:</b>\n` +
-        `✅ Все города России (100+)\n` +
-        `✅ Неограниченные запросы\n` +
-        `✅ Полный список отелей с ценами\n` +
-        `✅ Персональные маршруты\n` +
-        `✅ Экспорт в PDF/Google Maps\n` +
-        `✅ Уведомления о новых событиях\n\n` +
-        `💰 Цена: ${config.pricing.premium}₽/месяц\n\n` +
-        `👑 <b>VIP подписка (${config.pricing.vip}₽/мес):</b>\n` +
-        `Все из Premium + AI-рекомендации + Консьерж-сервис`,
-        { parse_mode: 'HTML', ...keyboards.subscriptionKeyboard() }
-      );
-    });
 
     // Избранное
     this.bot.hears('⭐️ Избранное', async (ctx) => {
       await ctx.reply(
         `⭐️ <b>Избранные города</b>\n\n` +
         `Пока пусто. Добавьте города в избранное, чтобы получать уведомления о новых событиях!`,
-        { parse_mode: 'HTML', ...keyboards.mainMenu() }
+        { parse_mode: 'HTML', ...keyboards.getMainMenuKeyboard() }
       );
     });
 
-    // Настройки
-    this.bot.hears('⚙️ Настройки', async (ctx) => {
-      const user = await safeUserDb.getByTelegramId(ctx.from.id);
-      if (!user) return;
-
-      const subscription = await safeUserDb.checkSubscription(user.id);
-      const subscriptionText = subscription === 'free' ? '🆓 Бесплатная' : subscription === 'premium' ? '💎 Premium' : '👑 VIP';
-
+    // Помощь
+    this.bot.hears('ℹ️ Помощь', async (ctx) => {
       await ctx.reply(
-        `⚙️ <b>Настройки</b>\n\n` +
-        `👤 ${ctx.from.first_name}\n` +
-        `📊 Подписка: ${subscriptionText}\n` +
-        `📅 Запросов сегодня: ${user.requests_today}/${subscription === 'free' ? config.limits.freeRequestsPerDay : '∞'}\n\n` +
-        `Выберите раздел:`,
-        { parse_mode: 'HTML', ...keyboards.settingsKeyboard() }
+        `📖 <b>Как пользоваться ботом:</b>\n\n` +
+        `1️⃣ Нажмите "🔍 Поиск города"\n` +
+        `2️⃣ Выберите город из списка или введите свой\n` +
+        `3️⃣ Укажите длительность поездки\n` +
+        `4️⃣ Получите полную информацию:\n` +
+        `   • 🎭 События и афиша\n` +
+        `   • 🏛 Достопримечательности\n` +
+        `   • 🏨 Гостиницы с отзывами\n` +
+        `   • 🎬 Кино\n\n` +
+        `💡 <b>Подписка на события:</b>\n` +
+        `Нажмите "Я пойду!" на событии — я напомню за 24ч и 30 минут до начала!\n\n` +
+        `❓ Вопросы? Напишите /support`,
+        { parse_mode: 'HTML', ...keyboards.getMainMenuKeyboard() }
       );
+    });
+
+    // Обработка текстовых сообщений (ввод города или дат)
+    this.bot.on('text', async (ctx, next) => {
+      // Если ожидаем ввод города
+      if (ctx.session.awaitingCustomCity) {
+        ctx.session.awaitingCustomCity = false;
+        ctx.session.city = ctx.message.text.trim();
+
+        await ctx.reply(
+          `✅ Выбран город: ${ctx.session.city}\n\nНа сколько дней планируете поездку?`,
+          keyboards.getDurationKeyboard()
+        );
+        return;
+      }
+
+      // Если ожидаем ввод дат
+      if (ctx.session.awaitingCustomDates) {
+        ctx.session.awaitingCustomDates = false;
+        const text = ctx.message.text.trim();
+
+        // Парсим даты (формат: 25.01.2025 - 27.01.2025)
+        const datePattern = /(\d{2})\.(\d{2})\.(\d{4})\s*-\s*(\d{2})\.(\d{2})\.(\d{4})/;
+        const match = text.match(datePattern);
+
+        if (!match) {
+          await ctx.reply(
+            '❌ Неверный формат дат.\n\n' +
+            'Используйте формат: ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n' +
+            'Например: 25.01.2025 - 27.01.2025'
+          );
+          ctx.session.awaitingCustomDates = true;
+          return;
+        }
+
+        const [, day1, month1, year1, day2, month2, year2] = match;
+        const dateFrom = new Date(parseInt(year1), parseInt(month1) - 1, parseInt(day1));
+        const dateTo = new Date(parseInt(year2), parseInt(month2) - 1, parseInt(day2));
+
+        if (dateFrom >= dateTo) {
+          await ctx.reply('❌ Дата начала должна быть раньше даты окончания');
+          ctx.session.awaitingCustomDates = true;
+          return;
+        }
+
+        ctx.session.dateFrom = dateFrom;
+        ctx.session.dateTo = dateTo;
+
+        await ctx.reply(
+          `✅ Даты поездки:\n` +
+          `${dateFrom.toLocaleDateString('ru-RU')} - ${dateTo.toLocaleDateString('ru-RU')}\n\n` +
+          `⏳ Ищу информацию о городе ${ctx.session.city}...\n` +
+          `Это может занять 10-20 секунд.`
+        );
+
+        // Отправляем запрос в n8n
+        await this.searchCity(ctx);
+        return;
+      }
+
+      // Если не ожидаем специального ввода, передаем дальше
+      await next();
     });
 
     // Назад в меню
     this.bot.hears(['◀️ Назад', '◀️ Назад в меню'], async (ctx) => {
-      await ctx.reply('Главное меню:', keyboards.mainMenu());
+      await ctx.reply('Главное меню:', keyboards.getMainMenuKeyboard());
+    });
+
+    // Обработка выбора города (inline кнопки)
+    this.bot.action(/^city:(.+)$/, async (ctx) => {
+      await ctx.answerCbQuery();
+      const cityMatch = ctx.match[1];
+
+      if (cityMatch === 'custom') {
+        // Пользователь хочет ввести свой город
+        ctx.session.awaitingCustomCity = true;
+        await ctx.reply('✍️ Введите название города:');
+        return;
+      }
+
+      // Сохраняем выбранный город
+      ctx.session.city = cityMatch;
+      await ctx.editMessageText(
+        `✅ Выбран город: ${cityMatch}\n\nНа сколько дней планируете поездку?`,
+        keyboards.getDurationKeyboard()
+      );
+    });
+
+    // Обработка выбора длительности (inline кнопки)
+    this.bot.action(/^duration:(.+)$/, async (ctx) => {
+      await ctx.answerCbQuery();
+      const durationMatch = ctx.match[1];
+
+      if (durationMatch === 'custom') {
+        // Пользователь хочет указать свои даты
+        ctx.session.awaitingCustomDates = true;
+        await ctx.reply(
+          '📅 Введите даты в формате:\n' +
+          'ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n\n' +
+          'Например: 25.01.2025 - 27.01.2025'
+        );
+        return;
+      }
+
+      const days = parseInt(durationMatch);
+      const dateFrom = new Date();
+      const dateTo = new Date();
+      dateTo.setDate(dateTo.getDate() + days);
+
+      ctx.session.dateFrom = dateFrom;
+      ctx.session.dateTo = dateTo;
+
+      await ctx.editMessageText(
+        `✅ Даты поездки:\n` +
+        `${dateFrom.toLocaleDateString('ru-RU')} - ${dateTo.toLocaleDateString('ru-RU')}\n\n` +
+        `⏳ Ищу информацию о городе ${ctx.session.city}...\n` +
+        `Это может занять 10-20 секунд.`
+      );
+
+      // Отправляем запрос в n8n
+      await this.searchCity(ctx);
+    });
+
+    // Обработка кнопок результатов
+    this.bot.action('view:events', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showEvents(ctx);
+    });
+
+    this.bot.action('view:attractions', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showAttractions(ctx);
+    });
+
+    this.bot.action('view:hotels', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showHotels(ctx);
+    });
+
+    this.bot.action('view:cinema', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showCinema(ctx);
+    });
+
+    this.bot.action('new_search', async (ctx) => {
+      await ctx.answerCbQuery();
+      ctx.session.city = undefined;
+      ctx.session.dateFrom = undefined;
+      ctx.session.dateTo = undefined;
+      ctx.session.searchResults = undefined;
+      await ctx.reply('Выберите город:', keyboards.getCitiesKeyboard());
+    });
+
+    // Обработка выбора события
+    this.bot.action(/^event:(\d+)$/, async (ctx) => {
+      await ctx.answerCbQuery();
+      const eventIndex = parseInt(ctx.match[1]);
+      const event = ctx.session.searchResults?.events?.[eventIndex];
+
+      if (!event) {
+        await ctx.reply('Событие не найдено');
+        return;
+      }
+
+      ctx.session.currentEvent = event;
+
+      // Проверяем подписку
+      // TODO: проверить в БД, подписан ли пользователь
+      const isSubscribed = false;
+
+      await ctx.editMessageText(
+        `🎭 ${event.title}\n\n` +
+        `${event.description || 'Без описания'}\n\n` +
+        `📍 ${event.place || 'Место уточняется'}\n` +
+        `📅 ${event.dates || 'Дата уточняется'}\n` +
+        `💰 ${event.price || 'Бесплатно'}`,
+        keyboards.getEventDetailsKeyboard(event.id, isSubscribed, event.site_url)
+      );
+    });
+
+    // Подписка на событие
+    this.bot.action(/^subscribe:(.+)$/, async (ctx) => {
+      await ctx.answerCbQuery('Подписка оформлена! ✅');
+      const eventId = ctx.match[1];
+      const event = ctx.session.currentEvent;
+
+      if (event && event.dates) {
+        // Отправляем в n8n для создания подписки
+        await n8nService.subscribeToEvent(
+          ctx.from.id,
+          eventId,
+          event.dates
+        );
+
+        await ctx.reply(
+          '✅ Отлично! Я напомню вам о событии:\n' +
+          '• За 24 часа до начала\n' +
+          '• За 30 минут до начала'
+        );
+      }
+    });
+
+    // Отписка от события
+    this.bot.action(/^unsubscribe:(.+)$/, async (ctx) => {
+      await ctx.answerCbQuery('Вы отписаны');
+      const eventId = ctx.match[1];
+
+      await n8nService.unsubscribeFromEvent(ctx.from.id, eventId);
+      await ctx.reply('Вы больше не будете получать уведомления об этом событии');
+    });
+
+    // Выбор отеля
+    this.bot.action(/^hotel:(\d+)$/, async (ctx) => {
+      await ctx.answerCbQuery();
+      const hotelIndex = parseInt(ctx.match[1]);
+      const hotel = ctx.session.searchResults?.hotels?.[hotelIndex];
+
+      if (!hotel) {
+        await ctx.reply('Гостиница не найдена');
+        return;
+      }
+
+      const stars = '⭐'.repeat(hotel.stars || 3);
+      await ctx.editMessageText(
+        `🏨 ${hotel.name}\n\n` +
+        `${stars} ${hotel.type === 'hostel' ? '(Хостел)' : '(Отель)'}\n` +
+        `💰 ${hotel.price}\n` +
+        `⭐ Рейтинг: ${hotel.rating}/5\n\n` +
+        `✅ ${hotel.pros}`,
+        keyboards.getHotelDetailsKeyboard()
+      );
+    });
+
+    // Обработка кнопок "Назад"
+    this.bot.action('back_to_cities', async (ctx) => {
+      await ctx.answerCbQuery();
+      ctx.session.city = undefined;
+      await ctx.editMessageText(
+        'Выберите город:',
+        keyboards.getCitiesKeyboard()
+      );
+    });
+
+    this.bot.action('back_to_results', async (ctx) => {
+      await ctx.answerCbQuery();
+      await ctx.editMessageText(
+        `📍 ${ctx.session.city}\n` +
+        `📅 ${ctx.session.dateFrom?.toLocaleDateString('ru-RU')} - ${ctx.session.dateTo?.toLocaleDateString('ru-RU')}\n\n` +
+        `Что вас интересует?`,
+        keyboards.getResultsMenuKeyboard()
+      );
+    });
+
+    this.bot.action('back_to_events', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showEvents(ctx);
+    });
+
+    this.bot.action('back_to_hotels', async (ctx) => {
+      await ctx.answerCbQuery();
+      await this.showHotels(ctx);
     });
 
     // Обработка inline кнопок
-    this.bot.action('buy_premium', async (ctx) => {
-      await ctx.answerCbQuery();
+  }
+
+  /**
+   * Отправка запроса в n8n для поиска информации о городе
+   */
+  private async searchCity(ctx: BotContext) {
+    if (!ctx.session.city || !ctx.session.dateFrom || !ctx.session.dateTo || !ctx.from) {
+      await ctx.reply('Ошибка: не указан город или даты');
+      return;
+    }
+
+    try {
+      // Отправляем запрос в n8n webhook
+      const response = await n8nService.sendCitySearchRequest({
+        telegram_id: ctx.from.id,
+        username: ctx.from.username,
+        first_name: ctx.from.first_name,
+        city: ctx.session.city,
+        date_from: ctx.session.dateFrom.toISOString(),
+        date_to: ctx.session.dateTo.toISOString(),
+      });
+
+      if (!response.success) {
+        await ctx.reply(
+          '❌ Произошла ошибка при поиске информации.\n' +
+          'Попробуйте позже или выберите другой город.'
+        );
+        return;
+      }
+
+      // Сохраняем результаты в сессию
+      ctx.session.searchResults = response;
+
+      // Отправляем обзор города
       await ctx.reply(
-        `💎 <b>Оформление Premium подписки</b>\n\n` +
-        `Цена: ${config.pricing.premium}₽/месяц\n\n` +
-        `После оплаты вам станут доступны все города и функции!`,
-        { parse_mode: 'HTML', ...keyboards.confirmPaymentKeyboard('premium') }
+        `🏙 <b>${response.city}</b>\n\n` +
+        `${response.summary || 'Информация обрабатывается...'}`,
+        { parse_mode: 'HTML' }
       );
+
+      // Показываем главное меню результатов
+      await ctx.reply(
+        `📍 ${ctx.session.city}\n` +
+        `📅 ${ctx.session.dateFrom.toLocaleDateString('ru-RU')} - ${ctx.session.dateTo.toLocaleDateString('ru-RU')}\n\n` +
+        `Что вас интересует?`,
+        keyboards.getResultsMenuKeyboard()
+      );
+
+    } catch (error) {
+      console.error('Error searching city:', error);
+      await ctx.reply(
+        '❌ Произошла ошибка при обработке запроса.\n' +
+        'Попробуйте позже.'
+      );
+    }
+  }
+
+  /**
+   * Показать события
+   */
+  private async showEvents(ctx: BotContext) {
+    const events = ctx.session.searchResults?.events || [];
+
+    if (events.length === 0) {
+      await ctx.reply(
+        '😔 События на выбранные даты не найдены',
+        keyboards.getResultsMenuKeyboard()
+      );
+      return;
+    }
+
+    let message = `🎭 <b>События в городе ${ctx.session.city}</b>\n\n`;
+
+    events.forEach((event: any, index: number) => {
+      message += `${index + 1}. <b>${event.title}</b>\n`;
+      if (event.venue) {
+        message += `📍 ${event.venue}\n`;
+      }
+      if (event.date) {
+        message += `📅 ${event.date}\n`;
+      }
+      if (event.price) {
+        message += `💰 ${event.price}\n`;
+      }
+      message += '\n';
     });
 
-    this.bot.action('buy_vip', async (ctx) => {
-      await ctx.answerCbQuery();
+    await ctx.reply(message, {
+      parse_mode: 'HTML',
+      ...keyboards.getBackButton('back_to_results', '« Назад к результатам')
+    });
+  }
+
+  /**
+   * Показать достопримечательности
+   */
+  private async showAttractions(ctx: BotContext) {
+    const attractions = ctx.session.searchResults?.attractions || [];
+
+    if (attractions.length === 0) {
       await ctx.reply(
-        `👑 <b>Оформление VIP подписки</b>\n\n` +
-        `Цена: ${config.pricing.vip}₽/месяц\n\n` +
-        `Максимальный уровень сервиса!`,
-        { parse_mode: 'HTML', ...keyboards.confirmPaymentKeyboard('vip') }
+        '😔 Достопримечательности не найдены',
+        keyboards.getResultsMenuKeyboard()
       );
+      return;
+    }
+
+    let message = `🏛 <b>Достопримечательности ${ctx.session.city}</b>\n\n`;
+    attractions.forEach((attr: any, index: number) => {
+      // Если пришла строка (простой формат от n8n)
+      if (typeof attr === 'string') {
+        message += `${attr}\n`;
+      } else {
+        // Если пришел объект (расширенный формат)
+        message += `${index + 1}. <b>${attr.name}</b>\n`;
+        if (attr.description) {
+          message += `${attr.description}\n`;
+        }
+        if (attr.address) {
+          message += `📍 ${attr.address}\n`;
+        }
+        message += '\n';
+      }
     });
 
-    this.bot.action(/^pay_(premium|vip)$/, async (ctx) => {
-      await ctx.answerCbQuery();
+    await ctx.reply(message, {
+      parse_mode: 'HTML',
+      ...keyboards.getBackButton('back_to_results')
+    });
+  }
+
+  /**
+   * Показать гостиницы
+   */
+  private async showHotels(ctx: BotContext) {
+    const hotels = ctx.session.searchResults?.hotels || [];
+
+    if (hotels.length === 0) {
       await ctx.reply(
-        `⚠️ Интеграция платежей в разработке.\n\n` +
-        `Для подключения нужно:\n` +
-        `1. Получить токен от платежного провайдера\n` +
-        `2. Настроить PAYMENT_PROVIDER_TOKEN в .env\n\n` +
-        `Инструкция: https://core.telegram.org/bots/payments`
+        '😔 Гостиницы не найдены',
+        keyboards.getResultsMenuKeyboard()
       );
+      return;
+    }
+
+    let message = `🏨 <b>Гостиницы в городе ${ctx.session.city}</b>\n\n`;
+
+    hotels.forEach((hotel: any, index: number) => {
+      // Если пришла строка (простой формат от n8n)
+      if (typeof hotel === 'string') {
+        message += `${hotel}\n\n`;
+      } else {
+        // Если пришел объект (расширенный формат)
+        message += `${index + 1}. <b>${hotel.name}</b>\n`;
+        if (hotel.rating) {
+          message += `⭐ ${hotel.rating}/5\n`;
+        }
+        if (hotel.price) {
+          message += `💰 от ${hotel.price}₽/ночь\n`;
+        }
+        if (hotel.address) {
+          message += `📍 ${hotel.address}\n`;
+        }
+        message += '\n';
+      }
+    });
+
+    await ctx.reply(message, {
+      parse_mode: 'HTML',
+      ...keyboards.getBackButton('back_to_results', '« Назад к результатам')
+    });
+  }
+
+  /**
+   * Показать кино
+   */
+  private async showCinema(ctx: BotContext) {
+    const cinema = ctx.session.searchResults?.cinema || [];
+
+    if (cinema.length === 0) {
+      await ctx.reply(
+        '😔 Фильмы в прокате не найдены',
+        keyboards.getResultsMenuKeyboard()
+      );
+      return;
+    }
+
+    let message = `🎬 <b>Кино в городе ${ctx.session.city}</b>\n\n`;
+    cinema.slice(0, 5).forEach((movie: any, index: number) => {
+      // Если пришла строка (простой формат от n8n)
+      if (typeof movie === 'string') {
+        message += `${movie}\n`;
+      } else {
+        // Если пришел объект (расширенный формат)
+        message += `${index + 1}. <b>${movie.title}</b> (${movie.year || '—'})\n`;
+        if (movie.description) {
+          message += `${movie.description.substring(0, 100)}...\n`;
+        }
+        message += '\n';
+      }
+    });
+
+    await ctx.reply(message, {
+      parse_mode: 'HTML',
+      ...keyboards.getBackButton('back_to_results')
     });
   }
 
   private async handleDuration(ctx: BotContext, days: number) {
-    if (!ctx.session?.city || !ctx.session?.userId) {
-      await ctx.reply('Сначала выберите город', keyboards.mainMenu());
+    if (!ctx.session.city || !ctx.session.userId) {
+      await ctx.reply('Сначала выберите город', keyboards.getMainMenuKeyboard());
       return;
     }
 
@@ -327,7 +677,7 @@ class TravelBot {
       `📍 Город: ${ctx.session.city}\n` +
       `📅 Даты: ${dateFrom.toLocaleDateString('ru-RU')} - ${dateTo.toLocaleDateString('ru-RU')}\n\n` +
       `Выберите, что вас интересует:`,
-      keyboards.resultsMenu()
+      keyboards.getResultsMenuKeyboard()
     );
   }
 

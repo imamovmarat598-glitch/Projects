@@ -1,0 +1,237 @@
+{
+  "name": "Travel Bot - Events Parser",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "name": "Schedule Every 2 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "id": "schedule-trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/favorites?select=city",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Favorite Cities",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300],
+      "id": "get-favorites"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "city-extract",
+              "name": "city",
+              "value": "={{ $json.city }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Extract Unique Cities",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [650, 300],
+      "id": "extract-cities"
+    },
+    {
+      "parameters": {
+        "url": "=https://kudago.com/public-api/v1.4/events/?location={{ $json.city }}&fields=id,title,description,dates,price,images,categories,place&actual_since={{ Math.floor(Date.now() / 1000) }}&page_size=20",
+        "options": {}
+      },
+      "name": "Fetch KudaGo Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300],
+      "id": "fetch-events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.item.json.results;\n\nif (!results || results.length === 0) {\n  return [];\n}\n\nconst city = $input.item.json.city || 'unknown';\nconst processedEvents = [];\n\nfor (const event of results.slice(0, 20)) {\n  const eventDate = event.dates && event.dates.length > 0 \n    ? new Date(event.dates[0].start * 1000).toISOString()\n    : new Date().toISOString();\n  \n  const imageUrl = event.images && event.images.length > 0\n    ? event.images[0].image\n    : '';\n  \n  const category = event.categories && event.categories.length > 0\n    ? event.categories[0]\n    : 'other';\n  \n  processedEvents.push({\n    event_id: String(event.id),\n    city: city,\n    title: (event.title || '').substring(0, 200),\n    description: (event.description || '').replace(/<[^>]*>/g, '').substring(0, 500),\n    event_date: eventDate,\n    price: event.price || 'Бесплатно',\n    image_url: imageUrl,\n    category: category,\n    venue_name: (event.place?.title || '').substring(0, 200),\n    venue_address: (event.place?.address || '').substring(0, 200),\n    is_active: true,\n    kudago_url: `https://kudago.com/event/${event.id}/`\n  });\n}\n\nreturn processedEvents.map(event => ({ json: event }));"
+      },
+      "name": "Process Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "id": "process-events"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ivrcaknzkasscojdjozz.supabase.co/rest/v1/events_cache",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cmNha256a2Fzc2NvamRqb3p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0NzkyODQsImV4cCI6MjA4NDA1NTI4NH0.0vL1X9rJl0Xp6xlD8Ims8H0oCnn98nvmPC4LOlAUDLs"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "event_id",
+              "value": "={{ $json.event_id }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ $json.city }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.description }}"
+            },
+            {
+              "name": "event_date",
+              "value": "={{ $json.event_date }}"
+            },
+            {
+              "name": "price",
+              "value": "={{ $json.price }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $json.image_url }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $json.category }}"
+            },
+            {
+              "name": "venue_name",
+              "value": "={{ $json.venue_name }}"
+            },
+            {
+              "name": "venue_address",
+              "value": "={{ $json.venue_address }}"
+            },
+            {
+              "name": "is_active",
+              "value": "={{ $json.is_active }}"
+            },
+            {
+              "name": "kudago_url",
+              "value": "={{ $json.kudago_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Save to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "id": "save-to-supabase"
+    }
+  ],
+  "connections": {
+    "Schedule Every 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Get Favorite Cities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Favorite Cities": {
+      "main": [
+        [
+          {
+            "node": "Extract Unique Cities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Unique Cities": {
+      "main": [
+        [
+          {
+            "node": "Fetch KudaGo Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch KudaGo Events": {
+      "main": [
+        [
+          {
+            "node": "Process Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Events": {
+      "main": [
+        [
+          {
+            "node": "Save to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

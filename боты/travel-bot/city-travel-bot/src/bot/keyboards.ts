@@ -1,101 +1,188 @@
 import { Markup } from 'telegraf';
 
-// Главное меню
-export const mainMenu = () => {
-  return Markup.keyboard([
-    ['🏙 Выбрать город', '⭐️ Избранное'],
-    ['💎 Premium подписка', '⚙️ Настройки'],
-  ]).resize();
-};
+// Топовые города России
+export const popularCities = [
+  'Москва',
+  'Санкт-Петербург',
+  'Казань',
+  'Сочи',
+  'Екатеринбург',
+  'Нижний Новгород',
+];
 
-// Популярные города (для free-пользователей)
-export const freeCitiesKeyboard = () => {
+/**
+ * Главное меню
+ */
+export function getMainMenuKeyboard() {
   return Markup.keyboard([
-    ['Москва', 'Санкт-Петербург'],
-    ['Казань', 'Екатеринбург'],
-    ['Сочи'],
-    ['◀️ Назад'],
-  ]).resize();
-};
+    ['🔍 Поиск города', '⭐️ Избранное'],
+    ['ℹ️ Помощь'],
+  ])
+    .resize()
+    .persistent();
+}
 
-// Все города (для premium)
-export const allCitiesKeyboard = () => {
-  return Markup.keyboard([
-    ['Москва', 'Санкт-Петербург'],
-    ['Казань', 'Екатеринбург'],
-    ['Сочи', 'Новосибирск'],
-    ['Краснодар', 'Нижний Новгород'],
-    ['Владивосток', 'Калининград'],
-    ['◀️ Назад'],
-  ]).resize();
-};
+/**
+ * Клавиатура выбора популярных городов
+ */
+export function getCitiesKeyboard() {
+  const buttons = [
+    ...popularCities.map((city) => Markup.button.callback(city, `city:${city}`)),
+    Markup.button.callback('✍️ Другой город', 'city:custom'),
+  ];
 
-// Выбор длительности поездки
-export const durationKeyboard = () => {
-  return Markup.keyboard([
-    ['1 день', 'Выходные (2 дня)'],
-    ['3-5 дней', 'Неделя'],
-    ['Указать даты вручную'],
-    ['◀️ Назад'],
-  ]).resize();
-};
+  // Разбиваем кнопки по 2 в ряду
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 2) {
+    rows.push(buttons.slice(i, i + 2));
+  }
 
-// Категории результатов
-export const resultsMenu = () => {
-  return Markup.keyboard([
-    ['🎭 Афиша', '🏨 Отели'],
-    ['🗺 Маршрут', '🏛 Достопримечательности'],
-    ['◀️ Назад в меню'],
-  ]).resize();
-};
+  return Markup.inlineKeyboard(rows);
+}
 
-// Inline кнопки для события
-export const eventButtons = (eventUrl: string) => {
+/**
+ * Клавиатура выбора длительности поездки
+ */
+export function getDurationKeyboard() {
   return Markup.inlineKeyboard([
-    [Markup.button.url('🎟 Купить билет', eventUrl)],
-    [Markup.button.callback('➕ Добавить в маршрут', 'add_to_route')],
+    [
+      Markup.button.callback('1 день', 'duration:1'),
+      Markup.button.callback('2 дня', 'duration:2'),
+    ],
+    [
+      Markup.button.callback('3 дня', 'duration:3'),
+      Markup.button.callback('Неделя', 'duration:7'),
+    ],
+    [Markup.button.callback('📅 Указать даты', 'duration:custom')],
+    [Markup.button.callback('« Назад', 'back_to_cities')],
   ]);
-};
+}
 
-// Inline кнопки для отеля
-export const hotelButtons = (bookingUrl: string) => {
+/**
+ * Клавиатура с гостиницами
+ */
+export function getHotelsKeyboard(hotels: any[]) {
+  if (!hotels || hotels.length === 0) {
+    return Markup.inlineKeyboard([
+      [Markup.button.callback('« Назад', 'back_to_results')],
+    ]);
+  }
+
+  const buttons = hotels.slice(0, 5).map((hotel, index) => {
+    const stars = '⭐'.repeat(hotel.stars || 3);
+    const price = hotel.price ? ` • от ${hotel.price}₽` : '';
+    return [
+      Markup.button.callback(
+        `${hotel.name} ${stars}${price}`,
+        `hotel:${index}`
+      ),
+    ];
+  });
+
+  buttons.push([Markup.button.callback('« Назад', 'back_to_results')]);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
+/**
+ * Кнопки для деталей гостиницы
+ */
+export function getHotelDetailsKeyboard(hotelUrl?: string) {
+  const buttons = [];
+
+  if (hotelUrl) {
+    buttons.push([Markup.button.url('🔗 Забронировать', hotelUrl)]);
+  }
+
+  buttons.push([Markup.button.callback('« Назад к списку', 'back_to_hotels')]);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
+/**
+ * Кнопки для событий с подпиской
+ */
+export function getEventsKeyboard(events: any[]) {
+  if (!events || events.length === 0) {
+    return Markup.inlineKeyboard([
+      [Markup.button.callback('« Назад', 'back_to_results')],
+    ]);
+  }
+
+  const buttons = events.slice(0, 5).map((event, index) => [
+    Markup.button.callback(
+      `${event.title.substring(0, 35)}...`,
+      `event:${index}`
+    ),
+  ]);
+
+  buttons.push([Markup.button.callback('« Назад', 'back_to_results')]);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
+/**
+ * Кнопки для деталей события с подпиской
+ */
+export function getEventDetailsKeyboard(eventId: string, isSubscribed: boolean, eventUrl?: string) {
+  const buttons = [];
+
+  // Кнопка подписки
+  if (isSubscribed) {
+    buttons.push([Markup.button.callback('✅ Я пойду (подписан)', `unsubscribe:${eventId}`)]);
+  } else {
+    buttons.push([Markup.button.callback('🔔 Я пойду!', `subscribe:${eventId}`)]);
+  }
+
+  if (eventUrl) {
+    buttons.push([Markup.button.url('🔗 Подробнее', eventUrl)]);
+  }
+
+  buttons.push([Markup.button.callback('« Назад к событиям', 'back_to_events')]);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
+/**
+ * Кнопки для результатов поиска (главное меню результатов)
+ */
+export function getResultsMenuKeyboard() {
   return Markup.inlineKeyboard([
-    [Markup.button.url('🏨 Забронировать', bookingUrl)],
-    [Markup.button.callback('📍 На карте', 'show_on_map')],
+    [
+      Markup.button.callback('🎭 События', 'view:events'),
+      Markup.button.callback('🏛 Достопримечательности', 'view:attractions'),
+    ],
+    [
+      Markup.button.callback('🏨 Гостиницы', 'view:hotels'),
+      Markup.button.callback('🎬 Кино', 'view:cinema'),
+    ],
+    [Markup.button.callback('🔄 Новый поиск', 'new_search')],
   ]);
-};
+}
 
-// Кнопки подписки
-export const subscriptionKeyboard = () => {
-  return Markup.inlineKeyboard([
-    [Markup.button.callback('💎 Premium (299₽/мес)', 'buy_premium')],
-    [Markup.button.callback('👑 VIP (999₽/мес)', 'buy_vip')],
-    [Markup.button.callback('◀️ Назад', 'back_to_menu')],
+/**
+ * Кнопки для избранного
+ */
+export function getFavoritesKeyboard(favorites: string[]) {
+  if (!favorites || favorites.length === 0) {
+    return Markup.inlineKeyboard([
+      [Markup.button.callback('➕ Добавить город', 'add_favorite')],
+    ]);
+  }
+
+  const buttons = favorites.map((city) => [
+    Markup.button.callback(`📍 ${city}`, `fav_city:${city}`),
+    Markup.button.callback('🗑', `remove_fav:${city}`),
   ]);
-};
 
-// Кнопки настроек
-export const settingsKeyboard = () => {
-  return Markup.keyboard([
-    ['📊 Моя подписка', '📜 История поисков'],
-    ['🔔 Уведомления', '❓ Помощь'],
-    ['◀️ Назад в меню'],
-  ]).resize();
-};
+  buttons.push([Markup.button.callback('➕ Добавить город', 'add_favorite')]);
 
-// Inline кнопки для избранного
-export const favoriteButtons = (city: string) => {
-  return Markup.inlineKeyboard([
-    [Markup.button.callback('🔔 Уведомления вкл/выкл', `notify_${city}`)],
-    [Markup.button.callback('🗑 Удалить', `remove_fav_${city}`)],
-  ]);
-};
+  return Markup.inlineKeyboard(buttons);
+}
 
-// Кнопки подтверждения платежа
-export const confirmPaymentKeyboard = (subscriptionType: 'premium' | 'vip') => {
-  const price = subscriptionType === 'premium' ? 299 : 999;
-  return Markup.inlineKeyboard([
-    [Markup.button.callback(`✅ Оплатить ${price}₽`, `pay_${subscriptionType}`)],
-    [Markup.button.callback('❌ Отменить', 'cancel_payment')],
-  ]);
-};
+/**
+ * Кнопка "Назад"
+ */
+export function getBackButton(callback: string, text: string = '« Назад') {
+  return Markup.inlineKeyboard([[Markup.button.callback(text, callback)]]);
+}

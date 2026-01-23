@@ -2,7 +2,7 @@ import Link from 'next/link'
 import {
   MapPin, Upload, Share2, Shield, Clock, Map,
   Download, FileText, Globe, Zap, Camera,
-  ChevronRight, Star, Users, Image
+  ChevronRight, Star, Users, Image as ImageIcon, Satellite
 } from 'lucide-react'
 
 export default function HomePage() {
@@ -45,7 +45,7 @@ export default function HomePage() {
                 href="/gallery"
                 className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-2xl hover:bg-white/20 transition-all border border-white/30"
               >
-                <Image className="w-5 h-5" />
+                <ImageIcon className="w-5 h-5" />
                 Смотреть галерею
               </Link>
             </div>
@@ -125,6 +125,12 @@ export default function HomePage() {
               title="Экспорт данных"
               description="Скачивайте данные в форматах CSV, KML и GPX"
               color="blue"
+            />
+            <FeatureCard
+              icon={Satellite}
+              title="Спутниковые снимки"
+              description="Интеграция с Геопорталом Роскосмоса и Google Earth"
+              color="indigo"
             />
           </div>
         </div>

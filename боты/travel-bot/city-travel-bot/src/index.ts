@@ -1,6 +1,6 @@
 import { config, validateConfig } from './config/config.js';
-import { testConnection } from './database/db.js';
 import { travelBot } from './bot/bot.js';
+import { supabaseService } from './services/supabase.service.js';
 
 async function main() {
   console.log('🚀 Starting City Travel Bot...\n');
@@ -10,16 +10,16 @@ async function main() {
     validateConfig();
     console.log('✅ Configuration validated');
 
-    // Тест подключения к БД
-    const dbConnected = await testConnection();
+    // Инициализация Supabase (основное хранилище)
+    console.log('📊 Connecting to Supabase...');
+    const supabaseConnected = await supabaseService.testConnection();
 
-    if (!dbConnected) {
-      console.warn('⚠️ Database connection failed. Bot will start without DB features.');
-      console.warn('   To enable database features:');
-      console.warn('   1. Install PostgreSQL');
-      console.warn('   2. Create database: createdb city_travel_bot');
-      console.warn('   3. Run migrations: npm run db:migrate');
-      console.warn('   4. Set DATABASE_URL in .env file\n');
+    if (supabaseConnected) {
+      console.log('✅ Supabase connected successfully');
+      console.log('📋 Database tables ready: users, favorites, events_cache\n');
+    } else {
+      console.warn('⚠️ Supabase not available. Bot will use in-memory storage.');
+      console.warn('   Check SUPABASE_URL and SUPABASE_ANON_KEY in .env file\n');
     }
 
     // Запуск бота

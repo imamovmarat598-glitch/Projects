@@ -1,0 +1,74 @@
+{
+  "name": "🚀 Travel Bot - Ready to Use",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "city-search",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем данные из webhook\nconst city = $input.item.json.city || 'Москва';\nconst telegram_id = $input.item.json.telegram_id || 0;\nconst date_from = $input.item.json.date_from;\nconst date_to = $input.item.json.date_to;\n\n// Формируем ответ\nreturn {\n  success: true,\n  city: city,\n  telegram_id: telegram_id,\n  summary: `Добро пожаловать в ${city}! Это один из самых интересных городов России. Здесь вас ждут удивительные достопримечательности, богатая история и насыщенная культурная жизнь.`,\n  events: [\n    {\n      title: \"Концерт классической музыки\",\n      date: date_from,\n      venue: \"Концертный зал Филармония\",\n      price: \"От 500₽\"\n    },\n    {\n      title: \"Выставка современного искусства\",\n      date: date_from,\n      venue: \"Галерея Современного Искусства\",\n      price: \"300₽\"\n    },\n    {\n      title: \"Театральная постановка\",\n      date: date_to,\n      venue: \"Драматический театр\",\n      price: \"От 800₽\"\n    }\n  ],\n  attractions: [\n    \"🏛 Главная площадь\",\n    \"🏰 Исторический музей\",\n    \"🌳 Парк культуры и отдыха\",\n    \"🌆 Смотровая площадка\",\n    \"🎭 Театр оперы и балета\"\n  ],\n  hotels: [\n    \"🏨 Отель Премиум - рейтинг 4.8/5, от 3500₽/ночь\",\n    \"🏨 Гостиница Центральная - рейтинг 4.5/5, от 2500₽/ночь\",\n    \"🏨 Бизнес-отель Комфорт - рейтинг 4.3/5, от 2000₽/ночь\"\n  ],\n  cinema: [\n    \"🎬 Кинотеатр Премьер - новинки кино\",\n    \"🎬 Арт-кино центр - авторское кино\"\n  ]\n};"
+      },
+      "id": "code-node",
+      "name": "Process Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-node",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Data": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-01-22T00:00:00.000Z",
+  "versionId": ""
+}
