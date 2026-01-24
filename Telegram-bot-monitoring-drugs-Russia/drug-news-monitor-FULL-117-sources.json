@@ -1,13 +1,13 @@
 {
-  "name": "Drug News Monitor - Russia & CIS - FULL 117 Sources",
+  "name": "Drug News Monitor - Russia & CIS - FULL 150+ Sources",
   "nodes": [
     {
       "parameters": {
         "rule": {
           "interval": [
             {
-              "field": "hours",
-              "hoursInterval": 12
+              "field": "cronExpression",
+              "expression": "0 4,16 * * *"
             }
           ]
         }
@@ -17,7 +17,7 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 1500],
-      "notes": "Runs every 12 hours - adjust as needed"
+      "notes": "Runs at 7:00 and 19:00 Moscow time (UTC+3)"
     },
     {
       "parameters": {
@@ -1425,6 +1425,402 @@
     },
     {
       "parameters": {
+        "url": "https://www.kommersant.ru/RSS/incidents.xml"
+      },
+      "id": "rss-kommersant",
+      "name": "Коммерсантъ Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.rbc.ru/v10/ajax/get-news-feed/project/rbcnews/lenta/all?limit=50"
+      },
+      "id": "rss-rbc",
+      "name": "РБК Новости",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://iz.ru/xml/rss/all.xml"
+      },
+      "id": "rss-izvestia",
+      "name": "Известия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.ntv.ru/exp/newsrss.jsp"
+      },
+      "id": "rss-ntv",
+      "name": "НТВ",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.1tv.ru/rss"
+      },
+      "id": "rss-1tv",
+      "name": "Первый канал",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://rg.ru/tema/bezopasnost/rss.xml"
+      },
+      "id": "rss-rg",
+      "name": "Российская Газета",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kp.ru/rss/allsections.xml"
+      },
+      "id": "rss-kp",
+      "name": "Комсомольская Правда",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.vesti.ru/vesti.rss"
+      },
+      "id": "rss-vesti",
+      "name": "Вести.ру",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://newizv.ru/rss"
+      },
+      "id": "rss-newizv",
+      "name": "Новые Известия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 2700],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://regnum.ru/rss/incidents"
+      },
+      "id": "rss-regnum",
+      "name": "Regnum Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://360tv.ru/rss/"
+      },
+      "id": "rss-360tv",
+      "name": "360° ТВ",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://aif.ru/rss/incidents.php"
+      },
+      "id": "rss-aif",
+      "name": "АиФ Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://life.ru/xml/feed.xml"
+      },
+      "id": "rss-life",
+      "name": "Life.ru",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.5-tv.ru/rss/episodes/"
+      },
+      "id": "rss-5tv",
+      "name": "Пятый канал",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.newsru.com/rss/crime"
+      },
+      "id": "rss-newsru",
+      "name": "NEWSru.com Криминал",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.rosbalt.ru/feed/"
+      },
+      "id": "rss-rosbalt",
+      "name": "Росбалт",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.infox.ru/rss"
+      },
+      "id": "rss-infox",
+      "name": "Infox.ru",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://fedpress.ru/feed"
+      },
+      "id": "rss-fedpress",
+      "name": "ФедералПресс",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 2900],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.sibreal.org/api/zrqiteuuir"
+      },
+      "id": "rss-sibreal",
+      "name": "Сибирь.Реалии",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ura.news/rss"
+      },
+      "id": "rss-uranews",
+      "name": "Ura.ru",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://v1.ru/rss/"
+      },
+      "id": "rss-v1",
+      "name": "V1.ru (Волгоград)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://63.ru/rss/"
+      },
+      "id": "rss-63ru",
+      "name": "63.ru (Самара)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://116.ru/rss/"
+      },
+      "id": "rss-116ru",
+      "name": "116.ru (Казань)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://161.ru/rss/"
+      },
+      "id": "rss-161ru",
+      "name": "161.ru (Ростов)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://93.ru/rss/"
+      },
+      "id": "rss-93ru",
+      "name": "93.ru (Краснодар)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1500, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://56.ru/rss/"
+      },
+      "id": "rss-56ru",
+      "name": "56.ru (Оренбург)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1700, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://74.ru/rss/"
+      },
+      "id": "rss-74ru",
+      "name": "74.ru (Челябинск)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1900, 3100],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://ngs24.ru/rss/"
+      },
+      "id": "rss-ngs24",
+      "name": "НГС24 (Красноярск)",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [300, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://news.mail.ru/rss/incidents/"
+      },
+      "id": "rss-mailru",
+      "name": "Mail.ru Происшествия",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [500, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.znak.com/rss"
+      },
+      "id": "rss-znak",
+      "name": "Znak.com",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [700, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://dailystorm.ru/rss"
+      },
+      "id": "rss-dailystorm",
+      "name": "Daily Storm",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [900, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.kavkaz-uzel.eu/articles.rss"
+      },
+      "id": "rss-kavkaz",
+      "name": "Кавказский Узел",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1100, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.currenttime.tv/api/zrqiteuuir"
+      },
+      "id": "rss-currenttime",
+      "name": "Настоящее Время",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [1300, 3300],
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
         "options": {}
@@ -1500,6 +1896,16 @@
     },
     {
       "parameters": {
+        "jsCode": "// Persistent deduplication: track published news for 5 days\nconst staticData = $getWorkflowStaticData('global');\n\n// Initialize history if not exists\nif (!staticData.publishedNews) {\n  staticData.publishedNews = [];\n}\n\nconst fiveDaysAgo = new Date();\nfiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);\n\n// Clean old entries (older than 5 days)\nstaticData.publishedNews = staticData.publishedNews.filter(\n  h => new Date(h.date) > fiveDaysAgo\n);\n\nconst filtered = $input.all().filter(item => {\n  const newsTitle = (item.json.title || '').trim().toLowerCase();\n  const newsDate = new Date(item.json.pubDate || item.json.isoDate || new Date());\n  \n  // Skip news older than 12 hours\n  const twelveHoursAgo = new Date();\n  twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);\n  if (newsDate < twelveHoursAgo) {\n    return false;\n  }\n  \n  // Check if already published in last 5 days\n  const isDuplicate = staticData.publishedNews.some(h => {\n    const hTitle = (h.title || '').trim().toLowerCase();\n    // Exact match or very similar (first 50 chars match)\n    return hTitle === newsTitle || \n           (newsTitle.length > 50 && hTitle.substring(0, 50) === newsTitle.substring(0, 50));\n  });\n  \n  if (isDuplicate) {\n    return false;\n  }\n  \n  // Add to history\n  staticData.publishedNews.push({\n    title: newsTitle,\n    date: new Date().toISOString()\n  });\n  \n  return true;\n});\n\nreturn filtered;"
+      },
+      "id": "filter-5-days",
+      "name": "Filter News (Last 5 Days Only)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2900, 1500]
+    },
+    {
+      "parameters": {
         "operation": "removeDuplicates",
         "compare": "selectedFields",
         "fieldsToCompare": "title"
@@ -1508,7 +1914,7 @@
       "name": "Remove Duplicates",
       "type": "n8n-nodes-base.removeDuplicates",
       "typeVersion": 1,
-      "position": [3050, 1500]
+      "position": [3150, 1500]
     },
     {
       "parameters": {
@@ -1518,7 +1924,7 @@
       "name": "Limit to 100",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
-      "position": [3300, 1500]
+      "position": [3400, 1500]
     },
     {
       "parameters": {
@@ -1544,7 +1950,7 @@
           "values": [
             {
               "role": "system",
-              "content": "Вы эксперт-аналитик по наркоситуации в России и странах СНГ. Ваша задача:\n\n1. ФИЛЬТРАЦИЯ: Выбрать только новости о:\n   - Изъятии наркотиков (героин, кокаин, метамфетамин, синтетика, марихуана, фентанил)\n   - Задержании наркокурьеров и наркоторговцев\n   - Обнаружении нарколабораторий\n   - Пресечении каналов наркотрафика\n   - Приговорах по наркостатьям\n   - Операциях спецслужб против наркогруппировок\n\n2. ИСКЛЮЧИТЬ:\n   - Дебаты о наркополитике\n   - Медицинскую марихуану\n   - Лечение наркозависимости\n   - Мнения и статьи\n\n3. ФОРМАТ ВЫВОДА:\n   Создать ежедневную сводку:\n   - Заголовок: \"📰 СВОДКА SKYNET: Борьба с наркотиками\" + дата\n   - Для каждой релевантной новости:\n     * Флаг региона/страны\n     * Краткий заголовок (1 строка)\n     * Ключевые детали: что изъято, количество, задержаны\n     * Ссылка на источник\n   - Статистика в конце\n\n4. ПРИОРИТЕТ:\n   - Крупные изъятия (килограммы, тонны)\n   - Межрегиональные операции\n   - Обнаружение лабораторий\n   - Важные задержания\n\n5. ОСОБОЕ ВНИМАНИЕ:\n   - Все регионы России (85 субъектов)\n   - Страны СНГ: Казахстан, Беларусь, Украина, Узбекистан, Киргизия, Армения, Азербайджан, Молдова, Таджикистан\n   - Трансграничный трафик\n   - Новые виды синтетических наркотиков"
+              "content": "Вы эксперт-аналитик по наркоситуации. Создайте ЕДИНУЮ сводку из всех релевантных новостей.\n\n1. ФИЛЬТРАЦИЯ - выбрать ТОЛЬКО новости о:\n   - Изъятии наркотиков (героин, кокаин, метамфетамин, синтетика, марихуана, фентанил, мефедрон, гашиш)\n   - Задержании наркокурьеров и наркоторговцев\n   - Обнаружении нарколабораторий\n   - Пресечении каналов наркотрафика\n   - Приговорах по наркостатьям\n   - Операциях спецслужб против наркогруппировок\n   - Ликвидации тайников (закладок)\n\n2. ИСКЛЮЧИТЬ:\n   - Дебаты о наркополитике и легализации\n   - Медицинскую марихуану\n   - Лечение/реабилитацию наркозависимости\n   - Мнения, статьи, аналитику\n   - Повторяющиеся новости (дубликаты)\n\n3. ФОРМАТ ВЫВОДА (Telegram HTML, ВСЁ В ОДНОМ СООБЩЕНИИ):\n\n<b>СВОДКА SKYNET</b>\n<i>ДД.ММ.ГГГГ, ЧЧ:ММ (МСК)</i>\n\n<b>РОССИЯ</b>\n(Сначала всегда идёт Россия. Группировать по регионам)\n\n• <b>Регион:</b> Краткое описание события. Что изъято, сколько (кг/г). Задержано: N чел.\n  Источник: название\n\n• <b>Регион:</b> ...\n\n<b>АЗЕРБАЙДЖАН</b>\n(Далее остальные страны СТРОГО ПО АЛФАВИТУ)\n\n• Краткое описание...\n\n<b>БЕЛАРУСЬ</b>\n• ...\n\n<b>КАЗАХСТАН</b>\n• ...\n\n(и т.д. по алфавиту: Армения, Азербайджан, Беларусь, Казахстан, Киргизия, Молдова, Таджикистан, Узбекистан, Украина)\n\n━━━━━━━━━━━━━━━\nИтого: X событий, Y регионов/стран\n━━━━━━━━━━━━━━━\n\n4. ВАЖНЫЕ ПРАВИЛА:\n   - НЕ использовать эмодзи флагов! Только ТЕКСТОВЫЕ названия стран\n   - Страны БЕЗ новостей о наркотиках - НЕ включать в сводку\n   - Россия ВСЕГДА первая, остальные по алфавиту\n   - ВСЕ новости в ОДНОМ сообщении\n   - Краткость: 1-2 строки на новость\n   - Указывать конкретику: вещество, вес, количество задержанных\n   - Источник указывать кратко (название СМИ)\n\n5. ПРИОРИТЕТ:\n   - Крупные изъятия (килограммы, тонны)\n   - Межрегиональные/международные операции\n   - Обнаружение лабораторий\n   - Ликвидация ОПГ\n\n6. НЕ добавлять:\n   - Эмодзи флагов\n   - Упоминания платформ (n8n, OpenAI, Telegram)\n   - Подписи, рекламу, комментарии\n   - Ссылки URL (только название источника)\n\n7. Если релевантных новостей НЕТ вообще - написать:\n<b>СВОДКА SKYNET</b>\n<i>ДД.ММ.ГГГГ, ЧЧ:ММ (МСК)</i>\nЗа отчётный период релевантных событий не зафиксировано."
             },
             {
               "role": "user",
@@ -1553,8 +1959,8 @@
           ]
         },
         "options": {
-          "maxTokens": 4000,
-          "temperature": 0.3
+          "maxTokens": 4096,
+          "temperature": 0.2
         }
       },
       "id": "openai-analyze",
@@ -1714,7 +2120,7 @@
     },
     {
       "parameters": {
-        "content": "## ⚙️ НАСТРОЙКА\n\n1. **OpenAI API Key**\n   - Добавить credential: OpenAI API\n\n2. **Telegram Bot**\n   - Создать бота через @BotFather\n   - Добавить credential: Telegram API\n   - Chat ID: -1001121854465\n\n3. **Расписание**\n   - Каждые 12 часов\n   - Фильтр: последние 12 часов\n   - Лимит: 100 новостей\n\n4. **117 RSS источников**\n   - Россия: 95 источников\n   - СНГ: 22 источника",
+        "content": "## ⚙️ НАСТРОЙКА\n\n1. **OpenAI API Key**\n   - Добавить credential: OpenAI API\n\n2. **Telegram Bot**\n   - Создать бота через @BotFather\n   - Добавить credential: Telegram API\n   - Chat ID: -1001121854465\n\n3. **Расписание**\n   - 7:00 МСК и 19:00 МСК\n   - Cron: 0 4,16 * * * (UTC)\n   - Фильтр: последние 12 часов\n   - Дедупликация: 5 суток\n   - Лимит: 100 новостей\n\n4. **150+ RSS источников**\n   - Россия: 128 источников\n   - СНГ: 22 источника\n\n5. **Формат вывода**\n   - СВОДКА SKYNET + дата/время\n   - Россия первая, СНГ по алфавиту\n   - Одно сообщение на канале\n   - Без флагов, только названия стран",
         "height": 400,
         "width": 400
       },
@@ -1845,7 +2251,40 @@
           {"node": "APA (Азербайджан)", "type": "main", "index": 0},
           {"node": "Trend (Азербайджан)", "type": "main", "index": 0},
           {"node": "IPN (Молдова)", "type": "main", "index": 0},
-          {"node": "Asia-Plus (Таджикистан)", "type": "main", "index": 0}
+          {"node": "Asia-Plus (Таджикистан)", "type": "main", "index": 0},
+          {"node": "Коммерсантъ Происшествия", "type": "main", "index": 0},
+          {"node": "РБК Новости", "type": "main", "index": 0},
+          {"node": "Известия", "type": "main", "index": 0},
+          {"node": "НТВ", "type": "main", "index": 0},
+          {"node": "Первый канал", "type": "main", "index": 0},
+          {"node": "Российская Газета", "type": "main", "index": 0},
+          {"node": "Комсомольская Правда", "type": "main", "index": 0},
+          {"node": "Вести.ру", "type": "main", "index": 0},
+          {"node": "Новые Известия", "type": "main", "index": 0},
+          {"node": "Regnum Происшествия", "type": "main", "index": 0},
+          {"node": "360° ТВ", "type": "main", "index": 0},
+          {"node": "АиФ Происшествия", "type": "main", "index": 0},
+          {"node": "Life.ru", "type": "main", "index": 0},
+          {"node": "Пятый канал", "type": "main", "index": 0},
+          {"node": "NEWSru.com Криминал", "type": "main", "index": 0},
+          {"node": "Росбалт", "type": "main", "index": 0},
+          {"node": "Infox.ru", "type": "main", "index": 0},
+          {"node": "ФедералПресс", "type": "main", "index": 0},
+          {"node": "Сибирь.Реалии", "type": "main", "index": 0},
+          {"node": "Ura.ru", "type": "main", "index": 0},
+          {"node": "V1.ru (Волгоград)", "type": "main", "index": 0},
+          {"node": "63.ru (Самара)", "type": "main", "index": 0},
+          {"node": "116.ru (Казань)", "type": "main", "index": 0},
+          {"node": "161.ru (Ростов)", "type": "main", "index": 0},
+          {"node": "93.ru (Краснодар)", "type": "main", "index": 0},
+          {"node": "56.ru (Оренбург)", "type": "main", "index": 0},
+          {"node": "74.ru (Челябинск)", "type": "main", "index": 0},
+          {"node": "НГС24 (Красноярск)", "type": "main", "index": 0},
+          {"node": "Mail.ru Происшествия", "type": "main", "index": 0},
+          {"node": "Znak.com", "type": "main", "index": 0},
+          {"node": "Daily Storm", "type": "main", "index": 0},
+          {"node": "Кавказский Узел", "type": "main", "index": 0},
+          {"node": "Настоящее Время", "type": "main", "index": 0}
         ]
       ]
     },
@@ -1966,9 +2405,42 @@
     "Trend (Азербайджан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
     "IPN (Молдова)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
     "Asia-Plus (Таджикистан)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Коммерсантъ Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "РБК Новости": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Известия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "НТВ": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Первый канал": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Российская Газета": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Комсомольская Правда": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Вести.ру": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Новые Известия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Regnum Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "360° ТВ": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "АиФ Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Life.ru": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Пятый канал": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "NEWSru.com Криминал": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Росбалт": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Infox.ru": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "ФедералПресс": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Сибирь.Реалии": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Ura.ru": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "V1.ru (Волгоград)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "63.ru (Самара)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "116.ru (Казань)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "161.ru (Ростов)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "93.ru (Краснодар)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "56.ru (Оренбург)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "74.ru (Челябинск)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "НГС24 (Красноярск)": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Mail.ru Происшествия": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Znak.com": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Daily Storm": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Кавказский Узел": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
+    "Настоящее Время": {"main": [[{"node": "Merge All Sources", "type": "main", "index": 0}]]},
     "Merge All Sources": {"main": [[{"node": "Normalize Fields", "type": "main", "index": 0}]]},
-    "Normalize Fields": {"main": [[{"node": "Filter Last 12h", "type": "main", "index": 0}]]},
-    "Filter Last 12h": {"main": [[{"node": "Remove Duplicates", "type": "main", "index": 0}]]},
+    "Normalize Fields": {"main": [[{"node": "Filter News (Last 5 Days Only)", "type": "main", "index": 0}]]},
+    "Filter News (Last 5 Days Only)": {"main": [[{"node": "Remove Duplicates", "type": "main", "index": 0}]]},
     "Remove Duplicates": {"main": [[{"node": "Limit to 100", "type": "main", "index": 0}]]},
     "Limit to 100": {"main": [[{"node": "Aggregate News", "type": "main", "index": 0}]]},
     "Aggregate News": {"main": [[{"node": "AI Analyze & Summarize", "type": "main", "index": 0}]]},
