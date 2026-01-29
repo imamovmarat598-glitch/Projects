@@ -1,0 +1,372 @@
+{
+  "name": "Drug Monitor Compact",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "trigger-collect",
+      "name": "Collect Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst sources = [\n  {\n    \"name\": \"МВД РФ\",\n    \"url\": \"https://xn--b1aew.xn--p1ai/news/rss\"\n  },\n  {\n    \"name\": \"Росгвардия\",\n    \"url\": \"https://rosgvard.ru/ru/rss\"\n  },\n  {\n    \"name\": \"Генпрокуратура РФ\",\n    \"url\": \"https://genproc.gov.ru/rss/\"\n  },\n  {\n    \"name\": \"СК РФ\",\n    \"url\": \"https://sledcom.ru/rss_news\"\n  },\n  {\n    \"name\": \"ТАСС\",\n    \"url\": \"https://tass.ru/rss/v2.xml\"\n  },\n  {\n    \"name\": \"РИА Происшествия\",\n    \"url\": \"https://ria.ru/export/rss2/incidents/index.xml\"\n  },\n  {\n    \"name\": \"Интерфакс\",\n    \"url\": \"https://www.interfax.ru/rss.asp\"\n  },\n  {\n    \"name\": \"Lenta.ru\",\n    \"url\": \"https://lenta.ru/rss/news/russia\"\n  },\n  {\n    \"name\": \"Газета.ру\",\n    \"url\": \"https://www.gazeta.ru/export/rss/incidents.xml\"\n  },\n  {\n    \"name\": \"Известия\",\n    \"url\": \"https://iz.ru/xml/rss/all.xml\"\n  },\n  {\n    \"name\": \"Коммерсант\",\n    \"url\": \"https://www.kommersant.ru/RSS/news.xml\"\n  },\n  {\n    \"name\": \"РБК\",\n    \"url\": \"https://rssexport.rbc.ru/rbcnews/news/30/full.rss\"\n  },\n  {\n    \"name\": \"Regnum\",\n    \"url\": \"https://regnum.ru/rss/news\"\n  },\n  {\n    \"name\": \"МК\",\n    \"url\": \"https://www.mk.ru/rss/index.xml\"\n  },\n  {\n    \"name\": \"Вечерняя Москва\",\n    \"url\": \"https://vm.ru/rss/news.xml\"\n  },\n  {\n    \"name\": \"Москва 24\",\n    \"url\": \"https://www.m24.ru/rss.xml\"\n  },\n  {\n    \"name\": \"Мослента\",\n    \"url\": \"https://moslenta.ru/rss.xml\"\n  },\n  {\n    \"name\": \"360\",\n    \"url\": \"https://360tv.ru/rss/\"\n  },\n  {\n    \"name\": \"Фонтанка\",\n    \"url\": \"https://www.fontanka.ru/fontanka.rss\"\n  },\n  {\n    \"name\": \"Мойка78\",\n    \"url\": \"https://m.78.ru/rss/\"\n  },\n  {\n    \"name\": \"СПб Дневник\",\n    \"url\": \"https://spbdnevnik.ru/rss\"\n  },\n  {\n    \"name\": \"47news Ленобласть\",\n    \"url\": \"https://47news.ru/rss/\"\n  },\n  {\n    \"name\": \"Белгород\",\n    \"url\": \"https://www.bel.ru/rss/\"\n  },\n  {\n    \"name\": \"Брянск\",\n    \"url\": \"https://www.bryansk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Владимир\",\n    \"url\": \"https://www.vladimir.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Воронеж\",\n    \"url\": \"https://www.vrn.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Иваново\",\n    \"url\": \"https://www.ivanovonews.ru/rss/\"\n  },\n  {\n    \"name\": \"Калуга\",\n    \"url\": \"https://www.kaluga.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КП Общий\",\n    \"url\": \"https://www.kp.ru/rss/allsections.xml\"\n  },\n  {\n    \"name\": \"Курск\",\n    \"url\": \"https://www.kursk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Липецк\",\n    \"url\": \"https://www.lipetsk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Орел\",\n    \"url\": \"https://newsorel.ru/feed/\"\n  },\n  {\n    \"name\": \"Рязань\",\n    \"url\": \"https://www.ryazan.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Смоленск\",\n    \"url\": \"https://www.smolensk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Тамбов\",\n    \"url\": \"https://www.tambov.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Тверь\",\n    \"url\": \"https://www.tver.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Тула\",\n    \"url\": \"https://www.tula.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Ярославль\",\n    \"url\": \"https://www.yar.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Архангельск\",\n    \"url\": \"https://29.ru/rss/\"\n  },\n  {\n    \"name\": \"Вологда\",\n    \"url\": \"https://newsvo.ru/rss\"\n  },\n  {\n    \"name\": \"Калининград\",\n    \"url\": \"https://www.kaliningrad.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Карелия\",\n    \"url\": \"https://www.stolica-onego.ru/rss/news/\"\n  },\n  {\n    \"name\": \"Коми\",\n    \"url\": \"https://www.bnkomi.ru/rss/\"\n  },\n  {\n    \"name\": \"Мурманск\",\n    \"url\": \"https://www.mvestnik.ru/rss/\"\n  },\n  {\n    \"name\": \"Новгород\",\n    \"url\": \"https://53news.ru/feed/\"\n  },\n  {\n    \"name\": \"Псков\",\n    \"url\": \"https://informpskov.ru/rss/\"\n  },\n  {\n    \"name\": \"Краснодар\",\n    \"url\": \"https://www.kuban.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Сочи\",\n    \"url\": \"https://www.sochi.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Ростов\",\n    \"url\": \"https://www.donnews.ru/rss/\"\n  },\n  {\n    \"name\": \"Волгоград\",\n    \"url\": \"https://www.volgograd.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Астрахань\",\n    \"url\": \"https://www.ast.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Адыгея\",\n    \"url\": \"https://www.adigea.aif.ru/rss/all.php\"\n  },\n  {\n    \"name\": \"Крым\",\n    \"url\": \"https://crimea.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Севастополь\",\n    \"url\": \"https://sevastopol.su/feed/\"\n  },\n  {\n    \"name\": \"Дагестан\",\n    \"url\": \"https://www.riadagestan.ru/rss/\"\n  },\n  {\n    \"name\": \"Ингушетия\",\n    \"url\": \"https://www.ingushetia.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КБР\",\n    \"url\": \"https://www.kbr.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КЧР\",\n    \"url\": \"https://www.kchr.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Сев Осетия\",\n    \"url\": \"https://15-gosnews.ru/rss/\"\n  },\n  {\n    \"name\": \"Чечня\",\n    \"url\": \"https://chechnyatoday.com/rss/\"\n  },\n  {\n    \"name\": \"Ставрополь\",\n    \"url\": \"https://www.stav.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Нижний Новгород\",\n    \"url\": \"https://www.nn.ru/rss/\"\n  },\n  {\n    \"name\": \"Киров\",\n    \"url\": \"https://www.kirov.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Самара\",\n    \"url\": \"https://www.samru.ru/rss/\"\n  },\n  {\n    \"name\": \"Саратов\",\n    \"url\": \"https://www.saratov.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Казань\",\n    \"url\": \"https://www.kzn.ru/export/rss.xml\"\n  },\n  {\n    \"name\": \"Ижевск\",\n    \"url\": \"https://www.udm.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Уфа\",\n    \"url\": \"https://bash.news/rss/\"\n  },\n  {\n    \"name\": \"Пермь\",\n    \"url\": \"https://www.perm.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Оренбург\",\n    \"url\": \"https://www.orenburg.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Пенза\",\n    \"url\": \"https://www.penza.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Ульяновск\",\n    \"url\": \"https://www.ul.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Чебоксары\",\n    \"url\": \"https://www.cheb.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Йошкар-Ола\",\n    \"url\": \"https://www.mari.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Саранск\",\n    \"url\": \"https://www.mordovia.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Екатеринбург\",\n    \"url\": \"https://www.e1.ru/export/rss/news.xml\"\n  },\n  {\n    \"name\": \"Челябинск\",\n    \"url\": \"https://www.chel.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Тюмень\",\n    \"url\": \"https://www.tyumen.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Курган\",\n    \"url\": \"https://www.kurgan.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"ХМАО\",\n    \"url\": \"https://ugra-news.ru/rss/\"\n  },\n  {\n    \"name\": \"ЯНАО\",\n    \"url\": \"https://sever-press.ru/feed/\"\n  },\n  {\n    \"name\": \"Новосибирск\",\n    \"url\": \"https://news.ngs.ru/rss/\"\n  },\n  {\n    \"name\": \"Омск\",\n    \"url\": \"https://www.omsk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Томск\",\n    \"url\": \"https://www.tomsk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Кемерово\",\n    \"url\": \"https://www.kem.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Красноярск\",\n    \"url\": \"https://newslab.ru/rss/\"\n  },\n  {\n    \"name\": \"Иркутск\",\n    \"url\": \"https://irk.ru/news/rss/\"\n  },\n  {\n    \"name\": \"Барнаул\",\n    \"url\": \"https://www.altai.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Горно-Алтайск\",\n    \"url\": \"https://www.gorno-altaisk.info/rss\"\n  },\n  {\n    \"name\": \"Абакан\",\n    \"url\": \"https://www.19rus.info/rss/\"\n  },\n  {\n    \"name\": \"Кызыл\",\n    \"url\": \"https://www.tuvaonline.ru/rss/\"\n  },\n  {\n    \"name\": \"Бурятия\",\n    \"url\": \"https://www.infpol.ru/rss/\"\n  },\n  {\n    \"name\": \"Владивосток\",\n    \"url\": \"https://primgazeta.ru/feed/\"\n  },\n  {\n    \"name\": \"Хабаровск\",\n    \"url\": \"https://khabarovsk.bezformata.com/rss/\"\n  },\n  {\n    \"name\": \"Благовещенск\",\n    \"url\": \"https://www.amur.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Якутск\",\n    \"url\": \"https://news.ykt.ru/rss\"\n  },\n  {\n    \"name\": \"Магадан\",\n    \"url\": \"https://magadanmedia.ru/rss/\"\n  },\n  {\n    \"name\": \"Сахалин\",\n    \"url\": \"https://sakhalinmedia.ru/rss/\"\n  },\n  {\n    \"name\": \"Камчатка\",\n    \"url\": \"https://kamchatinfo.com/feed/\"\n  },\n  {\n    \"name\": \"ЕАО\",\n    \"url\": \"https://eaomedia.ru/rss/\"\n  },\n  {\n    \"name\": \"TG МВД\",\n    \"url\": \"https://rsshub.app/telegram/channel/mvaborjba\"\n  },\n  {\n    \"name\": \"TG Росгвардия\",\n    \"url\": \"https://rsshub.app/telegram/channel/roslosgvard\"\n  },\n  {\n    \"name\": \"TG СК РФ\",\n    \"url\": \"https://rsshub.app/telegram/channel/sledaborjba\"\n  },\n  {\n    \"name\": \"TG Mash\",\n    \"url\": \"https://rsshub.app/telegram/channel/breakingmash\"\n  },\n  {\n    \"name\": \"TG Shot\",\n    \"url\": \"https://rsshub.app/telegram/channel/shot_shot\"\n  },\n  {\n    \"name\": \"TG Baza\",\n    \"url\": \"https://rsshub.app/telegram/channel/bazabazon\"\n  },\n  {\n    \"name\": \"TG РИА\",\n    \"url\": \"https://rsshub.app/telegram/channel/rian_ru\"\n  },\n  {\n    \"name\": \"TG Медиазона\",\n    \"url\": \"https://rsshub.app/telegram/channel/mediazona\"\n  },\n  {\n    \"name\": \"TG 112\",\n    \"url\": \"https://rsshub.app/telegram/channel/oslozhneniya_news\"\n  },\n  {\n    \"name\": \"TG Осторожно\",\n    \"url\": \"https://rsshub.app/telegram/channel/oslozhneniya\"\n  },\n  {\n    \"name\": \"TG Life Shot\",\n    \"url\": \"https://rsshub.app/telegram/channel/life_shot\"\n  },\n  {\n    \"name\": \"TG Lab\",\n    \"url\": \"https://rsshub.app/telegram/channel/laborjba\"\n  },\n  {\n    \"name\": \"TG Табор\",\n    \"url\": \"https://rsshub.app/telegram/channel/taboratelegram\"\n  },\n  {\n    \"name\": \"TG Readovka\",\n    \"url\": \"https://rsshub.app/telegram/channel/readovkanews\"\n  },\n  {\n    \"name\": \"TG ВЧК-ОГПУ\",\n    \"url\": \"https://rsshub.app/telegram/channel/vchkogpu\"\n  },\n  {\n    \"name\": \"TG Суды Москвы\",\n    \"url\": \"https://rsshub.app/telegram/channel/moscowcourts\"\n  },\n  {\n    \"name\": \"TG Фонтанка\",\n    \"url\": \"https://rsshub.app/telegram/channel/fontaborjba\"\n  },\n  {\n    \"name\": \"TG Кубань\",\n    \"url\": \"https://rsshub.app/telegram/channel/kubnews\"\n  },\n  {\n    \"name\": \"TG Крым\",\n    \"url\": \"https://rsshub.app/telegram/channel/crimeanews\"\n  },\n  {\n    \"name\": \"TG Дагестан\",\n    \"url\": \"https://rsshub.app/telegram/channel/dagestan_news\"\n  },\n  {\n    \"name\": \"TG Новосибирск\",\n    \"url\": \"https://rsshub.app/telegram/channel/nsk_news\"\n  },\n  {\n    \"name\": \"TG Екатеринбург\",\n    \"url\": \"https://rsshub.app/telegram/channel/ekbnews\"\n  },\n  {\n    \"name\": \"TG Челябинск\",\n    \"url\": \"https://rsshub.app/telegram/channel/chelaborjba\"\n  },\n  {\n    \"name\": \"TG Казань\",\n    \"url\": \"https://rsshub.app/telegram/channel/kazannews\"\n  },\n  {\n    \"name\": \"TG Уфа\",\n    \"url\": \"https://rsshub.app/telegram/channel/ufanews\"\n  },\n  {\n    \"name\": \"TG Пермь\",\n    \"url\": \"https://rsshub.app/telegram/channel/permnews\"\n  },\n  {\n    \"name\": \"TG Краснодар 2\",\n    \"url\": \"https://rsshub.app/telegram/channel/krasnodar_krai\"\n  },\n  {\n    \"name\": \"TG Ростов\",\n    \"url\": \"https://rsshub.app/telegram/channel/rostov_news\"\n  },\n  {\n    \"name\": \"TG Иркутск\",\n    \"url\": \"https://rsshub.app/telegram/channel/irkutsk_news\"\n  },\n  {\n    \"name\": \"TG Владивосток\",\n    \"url\": \"https://rsshub.app/telegram/channel/vladivostok_news\"\n  },\n  {\n    \"name\": \"TG Хабаровск\",\n    \"url\": \"https://rsshub.app/telegram/channel/khababorjba\"\n  },\n  {\n    \"name\": \"TG Якутия\",\n    \"url\": \"https://rsshub.app/telegram/channel/yakutia_news\"\n  },\n  {\n    \"name\": \"TG Сахалин\",\n    \"url\": \"https://rsshub.app/telegram/channel/sakhalin_news\"\n  },\n  {\n    \"name\": \"TG Наркоконтроль\",\n    \"url\": \"https://rsshub.app/telegram/channel/aborigen75\"\n  },\n  {\n    \"name\": \"TG Табор Daily\",\n    \"url\": \"https://rsshub.app/telegram/channel/taborjba_daily\"\n  },\n  {\n    \"name\": \"Tengri KZ\",\n    \"url\": \"https://tengrinews.kz/rss/\"\n  },\n  {\n    \"name\": \"Zakon KZ\",\n    \"url\": \"https://www.zakon.kz/rss/\"\n  },\n  {\n    \"name\": \"Nur KZ\",\n    \"url\": \"https://nur.kz/rss/\"\n  },\n  {\n    \"name\": \"Informburo KZ\",\n    \"url\": \"https://informburo.kz/rss\"\n  },\n  {\n    \"name\": \"Kapital KZ\",\n    \"url\": \"https://kapital.kz/rss/\"\n  },\n  {\n    \"name\": \"БелТА BY\",\n    \"url\": \"https://www.belta.by/rss\"\n  },\n  {\n    \"name\": \"Onliner BY\",\n    \"url\": \"https://onliner.by/feed\"\n  },\n  {\n    \"name\": \"СБ BY\",\n    \"url\": \"https://www.sb.by/rss/\"\n  },\n  {\n    \"name\": \"Gazeta UZ\",\n    \"url\": \"https://www.gazeta.uz/ru/rss/\"\n  },\n  {\n    \"name\": \"Kun UZ\",\n    \"url\": \"https://kun.uz/ru/rss\"\n  },\n  {\n    \"name\": \"UzDaily\",\n    \"url\": \"https://uzdaily.uz/ru/rss\"\n  },\n  {\n    \"name\": \"24kg KG\",\n    \"url\": \"https://24.kg/rss/\"\n  },\n  {\n    \"name\": \"Kloop KG\",\n    \"url\": \"https://kloop.kg/feed/\"\n  },\n  {\n    \"name\": \"Asia-Plus TJ\",\n    \"url\": \"https://asiaplustj.info/ru/rss\"\n  },\n  {\n    \"name\": \"News AM\",\n    \"url\": \"https://news.am/rus/rss/\"\n  },\n  {\n    \"name\": \"Sputnik BY\",\n    \"url\": \"https://sputnik.by/export/rss2/archive/index.xml\"\n  },\n  {\n    \"name\": \"Sputnik KZ\",\n    \"url\": \"https://ru.sputnik.kz/export/rss2/archive/index.xml\"\n  },\n  {\n    \"name\": \"APA AZ\",\n    \"url\": \"https://apa.az/ru/rss\"\n  },\n  {\n    \"name\": \"Trend AZ\",\n    \"url\": \"https://trend.az/rss/\"\n  },\n  {\n    \"name\": \"IPN MD\",\n    \"url\": \"https://www.ipn.md/ru/rss\"\n  },\n  {\n    \"name\": \"Civil GE\",\n    \"url\": \"https://civil.ge/ru/feed/\"\n  },\n  {\n    \"name\": \"Sputnik GE\",\n    \"url\": \"https://sputnik-georgia.ru/export/rss2/archive/index.xml\"\n  },\n  {\n    \"name\": \"Sputnik AM\",\n    \"url\": \"https://ru.armeniasputnik.am/export/rss2/archive/index.xml\"\n  },\n  {\n    \"name\": \"Новотека\",\n    \"url\": \"https://novoteka.ru/rss\"\n  },\n  {\n    \"name\": \"NewsRu\",\n    \"url\": \"https://www.newsru.com/rss/index\"\n  },\n  {\n    \"name\": \"Ведомости\",\n    \"url\": \"https://www.vedomosti.ru/rss/news\"\n  },\n  {\n    \"name\": \"НГ\",\n    \"url\": \"https://www.ng.ru/rss\"\n  },\n  {\n    \"name\": \"АиФ\",\n    \"url\": \"https://www.aif.ru/rss/all.php\"\n  },\n  {\n    \"name\": \"Новая Газета\",\n    \"url\": \"https://www.novayagazeta.ru/rss/all.xml\"\n  },\n  {\n    \"name\": \"Афиша Daily\",\n    \"url\": \"https://daily.afisha.ru/rss/\"\n  },\n  {\n    \"name\": \"Meduza\",\n    \"url\": \"https://meduza.io/rss/all\"\n  },\n  {\n    \"name\": \"Village\",\n    \"url\": \"https://www.the-village.ru/rss\"\n  },\n  {\n    \"name\": \"Секрет Фирмы\",\n    \"url\": \"https://secretmag.ru/rss.xml\"\n  },\n  {\n    \"name\": \"Правда\",\n    \"url\": \"https://www.pravda.ru/rss/\"\n  },\n  {\n    \"name\": \"Life\",\n    \"url\": \"https://life.ru/rss\"\n  },\n  {\n    \"name\": \"Бизнес Online\",\n    \"url\": \"https://www.business-gazeta.ru/rss\"\n  },\n  {\n    \"name\": \"161 Ростов\",\n    \"url\": \"https://161.ru/rss/\"\n  },\n  {\n    \"name\": \"74 Челябинск\",\n    \"url\": \"https://74.ru/rss/\"\n  },\n  {\n    \"name\": \"59 Пермь\",\n    \"url\": \"https://59.ru/rss/\"\n  },\n  {\n    \"name\": \"63 Самара\",\n    \"url\": \"https://63.ru/rss/\"\n  },\n  {\n    \"name\": \"72 Тюмень\",\n    \"url\": \"https://72.ru/rss/\"\n  },\n  {\n    \"name\": \"56 Оренбург\",\n    \"url\": \"https://56.ru/rss/\"\n  },\n  {\n    \"name\": \"93 Краснодар\",\n    \"url\": \"https://93.ru/rss/\"\n  },\n  {\n    \"name\": \"V1 Волгоград\",\n    \"url\": \"https://v1.ru/rss/\"\n  },\n  {\n    \"name\": \"116 Казань\",\n    \"url\": \"https://116.ru/rss/\"\n  },\n  {\n    \"name\": \"102 Уфа\",\n    \"url\": \"https://102.ru/rss/\"\n  },\n  {\n    \"name\": \"NN News\",\n    \"url\": \"https://nn-news.net/rss/\"\n  },\n  {\n    \"name\": \"КП Новосибирск\",\n    \"url\": \"https://www.nsk.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КП Урал\",\n    \"url\": \"https://www.ural.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КП СПб\",\n    \"url\": \"https://www.spb.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КП ДВ\",\n    \"url\": \"https://www.dv.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"КП Крым\",\n    \"url\": \"https://www.crimea.kp.ru/rss/\"\n  },\n  {\n    \"name\": \"Ura.news\",\n    \"url\": \"https://ura.news/rss\"\n  }\n]\n\nasync function parseRSS(url, name) {\n  try {\n    const response = await fetch(url, {\n      signal: AbortSignal.timeout(10000),\n      headers: { 'User-Agent': 'Mozilla/5.0 n8n RSS Reader' }\n    });\n    const text = await response.text();\n    const items = [];\n\n    // Simple regex to find items\n    const itemRegex = /<item[^>]*>([\\s\\S]*?)<\\/item>/gi;\n    let match;\n\n    while ((match = itemRegex.exec(text)) !== null) {\n      const itemXml = match[1];\n\n      // Extract fields with simple patterns\n      let title = '';\n      let link = '';\n      let pubDate = '';\n      let desc = '';\n\n      const titleMatch = itemXml.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\n      if (titleMatch) title = titleMatch[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').trim();\n\n      const linkMatch = itemXml.match(/<link[^>]*>([^<]*)<\\/link>/i);\n      if (linkMatch) link = linkMatch[1].trim();\n\n      const dateMatch = itemXml.match(/<pubDate[^>]*>([^<]*)<\\/pubDate>/i);\n      if (dateMatch) pubDate = dateMatch[1].trim();\n\n      const descMatch = itemXml.match(/<description[^>]*>([\\s\\S]*?)<\\/description>/i);\n      if (descMatch) desc = descMatch[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, '').replace(/<[^>]+>/g, '').substring(0, 300).trim();\n\n      if (title) {\n        items.push({ title, link, pubDate, description: desc, source: name });\n      }\n    }\n    return items;\n  } catch (e) {\n    return [];\n  }\n}\n\nconst batchSize = 30;\nconst allItems = [];\n\nfor (let i = 0; i < sources.length; i += batchSize) {\n  const batch = sources.slice(i, i + batchSize);\n  const results = await Promise.all(batch.map(s => parseRSS(s.url, s.name)));\n  results.forEach(items => allItems.push(...items));\n}\n\nreturn allItems.map(item => ({ json: item }));\n"
+      },
+      "id": "parse-rss",
+      "name": "Parse All RSS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-date",
+              "leftValue": "={{ $json.pubDate }}",
+              "rightValue": "={{ $now.minus({hours: 6}).toISO() }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-time",
+      "name": "Filter 6h",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.news) staticData.news = [];\nconst items = $input.all();\nconst now = new Date().toISOString();\nfor (const item of items) {\n  if (item.json.title) {\n    staticData.news.push({\n      title: item.json.title,\n      link: item.json.link || '',\n      description: item.json.description || '',\n      pubDate: item.json.pubDate || now,\n      source: item.json.source || ''\n    });\n  }\n}\nif (staticData.news.length > 1000) {\n  staticData.news = staticData.news.slice(-1000);\n}\nreturn [{ json: { stored: items.length, total: staticData.news.length }}];\n"
+      },
+      "id": "store-news",
+      "name": "Store News",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        750,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "trigger-process",
+      "name": "Process Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst staticData = $getWorkflowStaticData('global');\nconst news = staticData.news || [];\nif (news.length === 0) {\n  return [{ json: { empty: true, count: 0 }}];\n}\nconst seen = new Set();\nconst unique = [];\nfor (const item of news) {\n  const key = item.title.toLowerCase().trim().substring(0, 100);\n  if (!seen.has(key)) {\n    seen.add(key);\n    unique.push(item);\n  }\n}\nunique.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));\nconst result = unique.slice(0, 150);\nreturn [{ json: { empty: false, count: result.length, data: result }}];\n"
+      },
+      "id": "read-news",
+      "name": "Read & Dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "cond-not-empty",
+              "leftValue": "={{ $json.empty }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-empty",
+      "name": "Has Data",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Ты эксперт-аналитик по наркоситуации в России и СНГ.\n\nЗАДАЧА: Из списка новостей выбери ТОЛЬКО о:\n- Изъятии наркотиков\n- Задержании наркокурьеров/торговцев\n- Нарколабораториях\n- Операциях против наркогруппировок\n- Приговорах по наркостатьям\n\nФОРМАТ:\n📰 СВОДКА SKYNET\n📅 Дата\n\n🔹 [Регион]: Заголовок\n   Детали кратко\n\n📊 Итого: X новостей\n\nЕсли нет релевантных - ответь: \"Нет релевантных новостей за период.\""
+            },
+            {
+              "role": "user",
+              "content": "=Новости ({{ $json.count }}):\n\n{{ JSON.stringify($json.data, null, 2) }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 2500,
+          "temperature": 0.3
+        }
+      },
+      "id": "ai-analyze",
+      "name": "AI Analyze",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        750,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HmIYogVmhJbyYltO",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "cond-relevant",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "Нет релевантных",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-relevant",
+      "name": "Has Relevant",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001121854465",
+        "text": "={{ $json.content }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1250,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "IINTdyJBXXIXRYpW",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst staticData = $getWorkflowStaticData('global');\nconst count = (staticData.news || []).length;\nstaticData.news = [];\nreturn [{ json: { cleared: count }}];\n"
+      },
+      "id": "clear-storage",
+      "name": "Clear Storage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Drug Monitor Compact\n\n**Сборщик (каждый час):**\nParse All RSS -> Filter 6h -> Store\n\n**Процессор (каждые 6 часов):**\nRead & Dedupe -> AI -> Telegram -> Clear\n\n**Источников:** 188\n**Нод:** 12\n\nВсе RSS парсятся одним Code node!",
+        "height": 250,
+        "width": 280
+      },
+      "id": "note-info",
+      "name": "Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        50
+      ]
+    }
+  ],
+  "connections": {
+    "Collect Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse All RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse All RSS": {
+      "main": [
+        [
+          {
+            "node": "Filter 6h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter 6h": {
+      "main": [
+        [
+          {
+            "node": "Store News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read & Dedupe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read & Dedupe": {
+      "main": [
+        [
+          {
+            "node": "Has Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Data": {
+      "main": [
+        [
+          {
+            "node": "AI Analyze",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analyze": {
+      "main": [
+        [
+          {
+            "node": "Has Relevant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Relevant": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Clear Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
